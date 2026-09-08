@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Available Jobs</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">🎓 Campus Placement Portal</div>
+    <div class="nav-links">
+        <a th:href="@{/student/dashboard}">Dashboard</a>
+        <a th:href="@{/student/jobs}" class="active">Jobs</a>
+        <a th:href="@{/student/applications}">My Applications</a>
+        <a th:href="@{/student/recommendations}">AI Recommendations</a>
+        <a th:href="@{/student/profile}">Profile</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="page-header">
+        <h2>💼 Available Jobs</h2>
+        <p>Jobs eligible for your CGPA of <b th:text="${student.cgpa}"></b></p>
+    </div>
+
+    <!-- Flash messages -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <!-- No jobs -->
+    <div th:if="${#lists.isEmpty(jobs)}" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <p>No eligible jobs available right now. Check back later!</p>
+    </div>
+
+    <!-- Jobs table -->
+    <div th:if="${!#lists.isEmpty(jobs)}" class="card">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Domain</th>
+                    <th>Salary</th>
+                    <th>Min CGPA</th>
+                    <th>Deadline</th>
+                    <th>Required Skills</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="job : ${jobs}">
+                    <td th:text="${job.jobId}"></td>
+                    <td><b th:text="${job.title}"></b></td>
+                    <td th:text="${job.companyName != null ? job.companyName : 'N/A'}"></td>
+                    <td th:text="${job.domain != null and !job.domain.isEmpty() ? job.domain : '-'}"></td>
+                    <td th:text="${job.formattedSalary}"></td>
+                    <td th:text="${job.minCgpa}"></td>
+                    <td th:text="${job.deadline}"></td>
+                    <td>
+                        <span th:if="${job.requiredSkills != null and !job.requiredSkills.isEmpty()}"
+                              th:text="${job.requiredSkills}" class="skills-tag"></span>
+                        <span th:unless="${job.requiredSkills != null and !job.requiredSkills.isEmpty()}"
+                              class="text-muted">—</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/student/apply/{id}(id=${job.jobId})}" method="post">
+                            <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

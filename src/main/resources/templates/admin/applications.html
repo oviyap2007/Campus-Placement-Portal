@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Manage Applications</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<nav class="navbar">
+    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-links">
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a th:href="@{/admin/students}">Students</a>
+        <a th:href="@{/admin/companies}">Companies</a>
+        <a th:href="@{/admin/jobs}">Jobs</a>
+        <a th:href="@{/admin/applications}" class="active">Applications</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+<div class="main-content">
+    <div class="page-header"><h2>📋 Application Management</h2></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div th:if="${#lists.isEmpty(apps)}" class="empty-state"><p>No applications yet.</p></div>
+
+    <div th:if="${!#lists.isEmpty(apps)}" class="card">
+        <table class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Student</th><th>Job</th><th>Company</th><th>Applied On</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="app : ${apps}">
+                    <td th:text="${app.applicationId}"></td>
+                    <td th:text="${app.studentName != null ? app.studentName : 'ID-' + app.studentId}"></td>
+                    <td th:text="${app.jobTitle != null ? app.jobTitle : 'Job #' + app.jobId}"></td>
+                    <td th:text="${app.companyName != null ? app.companyName : '—'}"></td>
+                    <td th:text="${app.applyDate}"></td>
+                    <td>
+                        <span class="badge" th:classappend="${app.statusBadgeClass}" th:text="${app.status}"></span>
+                    </td>
+                    <td class="action-btns">
+                        <form th:action="@{/admin/applications/shortlist/{id}(id=${app.applicationId})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-warning btn-sm"
+                                    th:disabled="${app.status.name() != 'APPLIED'}">Shortlist</button>
+                        </form>
+                        <form th:action="@{/admin/applications/select/{id}(id=${app.applicationId})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-success btn-sm"
+                                    th:disabled="${app.status.name() == 'SELECTED' or app.status.name() == 'REJECTED'}">Select</button>
+                        </form>
+                        <form th:action="@{/admin/applications/reject/{id}(id=${app.applicationId})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                    th:disabled="${app.status.name() == 'SELECTED' or app.status.name() == 'REJECTED'}">Reject</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

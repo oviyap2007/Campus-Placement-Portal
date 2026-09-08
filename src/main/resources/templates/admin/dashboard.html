@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-links">
+        <a th:href="@{/admin/dashboard}" class="active">Dashboard</a>
+        <a th:href="@{/admin/students}">Students</a>
+        <a th:href="@{/admin/companies}">Companies</a>
+        <a th:href="@{/admin/jobs}">Jobs</a>
+        <a th:href="@{/admin/applications}">Applications</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="welcome-banner">
+        <div>
+            <h2>Welcome, <span th:text="${admin.name}">Admin</span>! 🛡</h2>
+            <p>Campus Placement Portal — Admin Control Panel</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">🎓</div>
+            <div class="stat-value" th:text="${totalStudents}">0</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" th:text="${placedStudents}">0</div>
+            <div class="stat-label">Placed</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏢</div>
+            <div class="stat-value" th:text="${totalCompanies}">0</div>
+            <div class="stat-label">Companies</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">💼</div>
+            <div class="stat-value" th:text="${activeJobs}">0</div>
+            <div class="stat-label">Active Jobs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-value" th:text="${totalApps}">0</div>
+            <div class="stat-label">Applications</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title">Quick Actions</div>
+    <div class="quick-actions">
+        <a th:href="@{/admin/students}"     class="action-card"><div class="action-icon">🎓</div><div class="action-label">Manage Students</div></a>
+        <a th:href="@{/admin/companies}"    class="action-card"><div class="action-icon">🏢</div><div class="action-label">Manage Companies</div></a>
+        <a th:href="@{/admin/jobs}"         class="action-card"><div class="action-icon">💼</div><div class="action-label">Manage Jobs</div></a>
+        <a th:href="@{/admin/applications}" class="action-card"><div class="action-icon">📋</div><div class="action-label">Applications</div></a>
+        <a th:href="@{/admin/reports}"      class="action-card"><div class="action-icon">📊</div><div class="action-label">Reports</div></a>
+    </div>
+</div>
+
+</body>
+</html>

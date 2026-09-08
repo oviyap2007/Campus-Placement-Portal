@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Campus Placement Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="login-page">
+
+<div class="login-card">
+    <div class="login-logo">
+        <span class="logo-icon">🎓</span>
+        <h1>Campus Placement Portal</h1>
+        <p>AI-Powered Job Recommendations</p>
+    </div>
+
+    <!-- Error message -->
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <form action="/login" method="post">
+        <!-- Role Selector -->
+        <div class="role-selector">
+            <label class="role-btn">
+                <input type="radio" name="role" value="student" checked>
+                <span>🎓 Student</span>
+            </label>
+            <label class="role-btn">
+                <input type="radio" name="role" value="admin">
+                <span>🛡 Admin</span>
+            </label>
+        </div>
+
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter username" required autocomplete="username">
+        </div>
+
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Login →</button>
+    </form>
+</div>
+
+</body>
+</html>

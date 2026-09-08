@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Job Recommendations</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">🎓 Campus Placement Portal</div>
+    <div class="nav-links">
+        <a th:href="@{/student/dashboard}">Dashboard</a>
+        <a th:href="@{/student/jobs}">Jobs</a>
+        <a th:href="@{/student/applications}">My Applications</a>
+        <a th:href="@{/student/recommendations}" class="active">AI Recommendations</a>
+        <a th:href="@{/student/profile}">Profile</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="page-header">
+        <h2>✨ AI Job Recommendations</h2>
+        <p>Powered by <b>Cosine Similarity</b> — matched for <b th:text="${student.name}"></b></p>
+    </div>
+
+    <!-- Student Profile Summary -->
+    <div class="profile-summary-card">
+        <div><b>Skills:</b>
+            <span th:if="${student.skills != null and !student.skills.trim().isEmpty()}"
+                  th:text="${student.skills}" class="skills-tag"></span>
+            <span th:unless="${student.skills != null and !student.skills.trim().isEmpty()}"
+                  class="text-muted">Not set — <a th:href="@{/student/profile}">update profile</a></span>
+        </div>
+        <div><b>Preferred Role:</b>
+            <span th:text="${student.preferredRole != null and !student.preferredRole.trim().isEmpty()
+                             ? student.preferredRole : 'Not set'}"></span>
+        </div>
+        <div><b>CGPA:</b> <span th:text="${student.cgpa}"></span></div>
+    </div>
+
+    <!-- No Recommendations -->
+    <div th:if="${#lists.isEmpty(recommendations)}" class="empty-state">
+        <div class="empty-icon">🤖</div>
+        <p>No recommendations found. Please <a th:href="@{/student/profile}">set your skills</a> for better matches!</p>
+    </div>
+
+    <!-- Recommendation Cards -->
+    <div th:each="rec, iter : ${recommendations}" class="rec-card">
+        <div class="rec-header">
+            <div class="rec-rank">#<span th:text="${iter.index + 1}"></span></div>
+            <div class="rec-title">
+                <h3 th:text="${rec.job.title}">Job Title</h3>
+                <span class="rec-company" th:text="${rec.job.companyName != null ? rec.job.companyName : 'Company'}"></span>
+            </div>
+            <div class="rec-score">
+                <div class="score-circle">
+                    <span th:text="${rec.scorePercent + '%'}">0%</span>
+                </div>
+                <div class="match-badge" th:classappend="${rec.matchBadgeClass}"
+                     th:text="${rec.matchLabel}"></div>
+            </div>
+        </div>
+
+        <!-- Score Bar -->
+        <div class="score-bar-container">
+            <div class="score-bar" th:style="'width:' + ${rec.scorePercent} + '%'"></div>
+        </div>
+
+        <div class="rec-details">
+            <div class="rec-meta">
+                <span>💰 <b th:text="${rec.job.formattedSalary}"></b></span>
+                <span>📊 Min CGPA: <b th:text="${rec.job.minCgpa}"></b></span>
+                <span th:if="${rec.job.domain != null and !rec.job.domain.isEmpty()}">
+                    🏢 <b th:text="${rec.job.domain}"></b>
+                </span>
+            </div>
+
+            <!-- Why Recommended -->
+            <div class="rec-reasons">
+                <div class="reasons-title">✅ Why Recommended:</div>
+                <ul>
+                    <li th:each="reason : ${rec.reasons}" th:text="${reason}"></li>
+                </ul>
+            </div>
+
+            <!-- Skill Gaps -->
+            <div th:if="${!#lists.isEmpty(rec.skillGaps)}" class="rec-gaps">
+                <div class="gaps-title">📚 Skills to Learn:</div>
+                <span th:each="gap : ${rec.skillGaps}" class="skill-gap-tag" th:text="${gap}"></span>
+            </div>
+            <div th:if="${#lists.isEmpty(rec.skillGaps)}" class="all-skills-match">
+                ✅ You meet ALL skill requirements for this job!
+            </div>
+        </div>
+
+        <!-- Apply Button -->
+        <div class="rec-apply">
+            <form th:action="@{/student/apply/{id}(id=${rec.job.jobId})}" method="post">
+                <button type="submit" class="btn btn-primary">Apply Now</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Explanation -->
+    <div class="ai-info-box">
+        <h4>🤖 How AI Recommendations Work</h4>
+        <p>The system uses <b>Cosine Similarity</b> to compare your profile vector against each job's
+        requirement vector. It considers your <b>skills (35%)</b>, <b>CGPA (15%)</b>,
+        <b>preferred role (12%)</b>, <b>domain match (8%)</b>, and overall
+        <b>vector similarity (30%)</b> to rank jobs from best to least suitable.</p>
+    </div>
+</div>
+
+</body>
+</html>

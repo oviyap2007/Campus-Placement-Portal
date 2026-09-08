@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="nav-brand">🎓 Campus Placement Portal</div>
+    <div class="nav-links">
+        <a th:href="@{/student/dashboard}" class="active">Dashboard</a>
+        <a th:href="@{/student/jobs}">Jobs</a>
+        <a th:href="@{/student/applications}">My Applications</a>
+        <a th:href="@{/student/recommendations}">AI Recommendations</a>
+        <a th:href="@{/student/profile}">Profile</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div>
+            <h2>Welcome back, <span th:text="${student.name}">Student</span>! 👋</h2>
+            <p>Department: <b th:text="${student.department}"></b> &nbsp;|&nbsp;
+               CGPA: <b th:text="${student.cgpa}"></b> &nbsp;|&nbsp;
+               Status: <b th:text="${student.placed ? '✅ Placed' : '🔍 Seeking'}"></b></p>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">💼</div>
+            <div class="stat-value" th:text="${eligibleJobs}">0</div>
+            <div class="stat-label">Eligible Jobs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-value" th:text="${myApps}">0</div>
+            <div class="stat-label">My Applications</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🤖</div>
+            <div class="stat-value">AI</div>
+            <div class="stat-label">Recommendations</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title">Quick Actions</div>
+    <div class="quick-actions">
+        <a th:href="@{/student/jobs}" class="action-card">
+            <div class="action-icon">🔍</div>
+            <div class="action-label">Browse Jobs</div>
+        </a>
+        <a th:href="@{/student/applications}" class="action-card">
+            <div class="action-icon">📄</div>
+            <div class="action-label">My Applications</div>
+        </a>
+        <a th:href="@{/student/recommendations}" class="action-card">
+            <div class="action-icon">✨</div>
+            <div class="action-label">AI Job Matches</div>
+        </a>
+        <a th:href="@{/student/profile}" class="action-card">
+            <div class="action-icon">👤</div>
+            <div class="action-label">Edit Profile</div>
+        </a>
+    </div>
+
+    <!-- Skills Notice -->
+    <div th:if="${student.skills == null or student.skills.trim().isEmpty()}"
+         class="alert alert-warning">
+        ⚠️ Your skills are not set! <a th:href="@{/student/profile}">Update your profile</a>
+        to get better AI job recommendations.
+    </div>
+</div>
+
+</body>
+</html>

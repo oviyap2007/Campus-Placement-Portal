@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Manage Companies</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<nav class="navbar">
+    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-links">
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a th:href="@{/admin/students}">Students</a>
+        <a th:href="@{/admin/companies}" class="active">Companies</a>
+        <a th:href="@{/admin/jobs}">Jobs</a>
+        <a th:href="@{/admin/applications}">Applications</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+<div class="main-content">
+    <div class="page-header"><h2>🏢 Company Management</h2></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div class="card">
+        <h3>➕ Add New Company</h3>
+        <form th:action="@{/admin/companies/add}" method="post" class="form-grid">
+            <div class="form-group"><label>Company Name</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Industry</label><input type="text" name="industry" placeholder="e.g. IT Services"></div>
+            <div class="form-group"><label>Location</label><input type="text" name="location" placeholder="e.g. Chennai"></div>
+            <div class="form-group"><label>Contact Email</label><input type="email" name="contactEmail"></div>
+            <div class="form-group"><label>Contact Phone</label><input type="text" name="contactPhone"></div>
+            <div class="form-group form-full"><button type="submit" class="btn btn-primary">Add Company</button></div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>All Companies</h3>
+        <div th:if="${#lists.isEmpty(companies)}" class="empty-state"><p>No companies added yet.</p></div>
+        <table th:if="${!#lists.isEmpty(companies)}" class="data-table">
+            <thead><tr><th>ID</th><th>Name</th><th>Industry</th><th>Location</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
+            <tbody>
+                <tr th:each="c : ${companies}">
+                    <td th:text="${c.companyId}"></td>
+                    <td><b th:text="${c.name}"></b></td>
+                    <td th:text="${c.industry}"></td>
+                    <td th:text="${c.location}"></td>
+                    <td th:text="${c.contactEmail}"></td>
+                    <td th:text="${c.contactPhone}"></td>
+                    <td>
+                        <form th:action="@{/admin/companies/delete/{id}(id=${c.companyId})}" method="post"
+                              onsubmit="return confirm('Delete this company?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

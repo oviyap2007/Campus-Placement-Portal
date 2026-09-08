@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Placement Reports</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<nav class="navbar">
+    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-links">
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a th:href="@{/admin/students}">Students</a>
+        <a th:href="@{/admin/companies}">Companies</a>
+        <a th:href="@{/admin/jobs}">Jobs</a>
+        <a th:href="@{/admin/applications}">Applications</a>
+        <a th:href="@{/admin/reports}" class="active">Reports</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+<div class="main-content">
+    <div class="page-header"><h2>📊 Placement Reports</h2></div>
+
+    <!-- Summary Cards -->
+    <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">🎓</div>
+            <div class="stat-value" th:text="${totalStudents}">0</div>
+            <div class="stat-label">Total Students</div></div>
+        <div class="stat-card"><div class="stat-icon">✅</div>
+            <div class="stat-value" th:text="${placedStudents}">0</div>
+            <div class="stat-label">Placed</div></div>
+        <div class="stat-card"><div class="stat-icon">🔍</div>
+            <div class="stat-value" th:text="${unplacedStudents}">0</div>
+            <div class="stat-label">Unplaced</div></div>
+        <div class="stat-card"><div class="stat-icon">📈</div>
+            <div class="stat-value" th:text="${placementRate + '%'}">0%</div>
+            <div class="stat-label">Placement Rate</div></div>
+        <div class="stat-card"><div class="stat-icon">🏢</div>
+            <div class="stat-value" th:text="${totalCompanies}">0</div>
+            <div class="stat-label">Companies</div></div>
+        <div class="stat-card"><div class="stat-icon">💼</div>
+            <div class="stat-value" th:text="${activeJobs}">0</div>
+            <div class="stat-label">Active Jobs</div></div>
+    </div>
+
+    <!-- Placement Progress Bar -->
+    <div class="card">
+        <h3>📈 Placement Progress</h3>
+        <div class="report-progress-label">
+            <span th:text="${placedStudents} + ' placed out of ' + ${totalStudents} + ' students'"></span>
+            <span th:text="${placementRate + '%'}"></span>
+        </div>
+        <div class="score-bar-container large">
+            <div class="score-bar"
+                 th:style="'width:' + ${placementRate} + '%'"></div>
+        </div>
+    </div>
+
+    <!-- Placed Students List -->
+    <div class="card">
+        <h3>✅ Placed Students</h3>
+        <div th:if="${#lists.isEmpty(placedList)}" class="empty-state"><p>No students placed yet.</p></div>
+        <table th:if="${!#lists.isEmpty(placedList)}" class="data-table">
+            <thead><tr><th>Name</th><th>Department</th><th>CGPA</th><th>Email</th></tr></thead>
+            <tbody>
+                <tr th:each="s : ${placedList}">
+                    <td><b th:text="${s.name}"></b></td>
+                    <td th:text="${s.department}"></td>
+                    <td th:text="${s.cgpa}"></td>
+                    <td th:text="${s.email}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Students</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-links">
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a th:href="@{/admin/students}" class="active">Students</a>
+        <a th:href="@{/admin/companies}">Companies</a>
+        <a th:href="@{/admin/jobs}">Jobs</a>
+        <a th:href="@{/admin/applications}">Applications</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="page-header">
+        <h2>🎓 Student Management</h2>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <!-- Register Student Form -->
+    <div class="card collapsible-card">
+        <h3>➕ Register New Student</h3>
+        <form th:action="@{/admin/students/add}" method="post" class="form-grid">
+            <div class="form-group"><label>Full Name</label><input type="text" name="name" required></div>
+            <div class="form-group"><label>Email</label><input type="email" name="email" required></div>
+            <div class="form-group"><label>Phone</label><input type="text" name="phone"></div>
+            <div class="form-group">
+                <label>Department</label>
+                <select name="department">
+                    <option>CSE</option><option>IT</option><option>ECE</option>
+                    <option>EEE</option><option>MECH</option><option>CIVIL</option>
+                </select>
+            </div>
+            <div class="form-group"><label>CGPA</label><input type="number" name="cgpa" step="0.01" min="0" max="10" required></div>
+            <div class="form-group"><label>Pass Year</label><input type="number" name="passYear" value="2025" required></div>
+            <div class="form-group"><label>Username</label><input type="text" name="username" required></div>
+            <div class="form-group"><label>Password</label><input type="password" name="password" required></div>
+            <div class="form-group"><label>Skills (comma-separated)</label><input type="text" name="skills" placeholder="Java,SQL,Python"></div>
+            <div class="form-group"><label>Preferred Role</label><input type="text" name="preferredRole" placeholder="Backend Developer"></div>
+            <div class="form-group form-full">
+                <button type="submit" class="btn btn-primary">Register Student</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Students Table -->
+    <div class="card">
+        <h3>All Students</h3>
+        <div th:if="${#lists.isEmpty(students)}" class="empty-state"><p>No students registered yet.</p></div>
+        <table th:if="${!#lists.isEmpty(students)}" class="data-table">
+            <thead>
+                <tr><th>ID</th><th>Name</th><th>Dept</th><th>CGPA</th><th>Skills</th><th>Status</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="s : ${students}">
+                    <td th:text="${s.studentId}"></td>
+                    <td><b th:text="${s.name}"></b><br><small th:text="${s.email}" class="text-muted"></small></td>
+                    <td th:text="${s.department}"></td>
+                    <td th:text="${s.cgpa}"></td>
+                    <td><span th:text="${s.skills != null and !s.skills.isEmpty() ? s.skills : '—'}" class="skills-tag"></span></td>
+                    <td><span th:text="${s.placed ? 'Placed' : 'Seeking'}"
+                              th:classappend="${s.placed ? 'badge badge-selected' : 'badge badge-applied'}"></span></td>
+                    <td>
+                        <form th:action="@{/admin/students/delete/{id}(id=${s.studentId})}" method="post"
+                              onsubmit="return confirm('Delete this student?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>

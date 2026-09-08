@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><title>Manage Jobs</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<body>
+<nav class="navbar">
+    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-links">
+        <a th:href="@{/admin/dashboard}">Dashboard</a>
+        <a th:href="@{/admin/students}">Students</a>
+        <a th:href="@{/admin/companies}">Companies</a>
+        <a th:href="@{/admin/jobs}" class="active">Jobs</a>
+        <a th:href="@{/admin/applications}">Applications</a>
+        <a th:href="@{/admin/reports}">Reports</a>
+        <a th:href="@{/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+<div class="main-content">
+    <div class="page-header"><h2>💼 Job Management</h2></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+
+    <div class="card">
+        <h3>➕ Add New Job</h3>
+        <form th:action="@{/admin/jobs/add}" method="post" class="form-grid">
+            <div class="form-group">
+                <label>Company</label>
+                <select name="companyId" required>
+                    <option value="" disabled selected>Select Company</option>
+                    <option th:each="c : ${companies}" th:value="${c.companyId}" th:text="${c.name}"></option>
+                </select>
+            </div>
+            <div class="form-group"><label>Job Title</label><input type="text" name="title" required></div>
+            <div class="form-group form-full"><label>Description</label><textarea name="description" rows="2"></textarea></div>
+            <div class="form-group"><label>Salary (₹)</label><input type="number" name="salary" placeholder="e.g. 700000"></div>
+            <div class="form-group"><label>Min CGPA</label><input type="number" name="minCgpa" step="0.1" min="0" max="10" value="6.0"></div>
+            <div class="form-group"><label>Deadline (YYYY-MM-DD)</label><input type="date" name="deadline" required></div>
+            <div class="form-group"><label>Required Skills</label><input type="text" name="requiredSkills" placeholder="Java,SQL,Spring Boot"></div>
+            <div class="form-group"><label>Domain</label><input type="text" name="domain" placeholder="e.g. Software Development"></div>
+            <div class="form-group"><label>Job Role</label><input type="text" name="jobRole" placeholder="e.g. Backend Developer"></div>
+            <div class="form-group form-full"><button type="submit" class="btn btn-primary">Post Job</button></div>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>All Jobs</h3>
+        <div th:if="${#lists.isEmpty(jobs)}" class="empty-state"><p>No jobs posted yet.</p></div>
+        <table th:if="${!#lists.isEmpty(jobs)}" class="data-table">
+            <thead><tr><th>ID</th><th>Title</th><th>Company</th><th>Salary</th><th>Min CGPA</th><th>Deadline</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="j : ${jobs}">
+                    <td th:text="${j.jobId}"></td>
+                    <td><b th:text="${j.title}"></b><br>
+                        <small th:text="${j.requiredSkills}" class="text-muted skills-tag"></small></td>
+                    <td th:text="${j.companyName != null ? j.companyName : 'ID-' + j.companyId}"></td>
+                    <td th:text="${j.formattedSalary}"></td>
+                    <td th:text="${j.minCgpa}"></td>
+                    <td th:text="${j.deadline}"></td>
+                    <td>
+                        <span th:text="${j.active ? 'OPEN' : 'CLOSED'}"
+                              th:classappend="${j.active ? 'badge badge-selected' : 'badge badge-rejected'}"></span>
+                    </td>
+                    <td class="action-btns">
+                        <form th:action="@{/admin/jobs/toggle/{id}(id=${j.jobId})}" method="post" style="display:inline">
+                            <button type="submit" class="btn btn-sm"
+                                    th:classappend="${j.active ? 'btn-warning' : 'btn-success'}"
+                                    th:text="${j.active ? 'Close' : 'Open'}"></button>
+                        </form>
+                        <form th:action="@{/admin/jobs/delete/{id}(id=${j.jobId})}" method="post" style="display:inline"
+                              onsubmit="return confirm('Delete this job?')">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>
