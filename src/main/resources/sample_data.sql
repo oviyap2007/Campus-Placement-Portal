@@ -3,7 +3,6 @@
 -- Run AFTER schema.sql
 -- ================================================
 
-USE campus_placement;
 
 -- Admin / Placement Officer
 INSERT IGNORE INTO placement_officer (name, email, username, password) VALUES

@@ -1,10 +1,9 @@
 -- ================================================
 -- AI-Based Campus Placement Portal - Schema
--- Run this in MySQL Workbench ONCE to set up the DB
+-- Tables are created inside the database specified
+-- by the JDBC connection URL (spring.datasource.url)
 -- ================================================
 
-CREATE DATABASE IF NOT EXISTS campus_placement;
-USE campus_placement;
 
 -- 1. Placement Officer (Admin)
 CREATE TABLE IF NOT EXISTS placement_officer (
