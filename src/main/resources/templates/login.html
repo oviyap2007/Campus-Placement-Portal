@@ -1,48 +1,613 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login — Campus Placement Portal</title>
+    <title>PlaCamp — AI Placement Platform</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body class="login-page">
+    <style>
+        /* ═══════════════════════════════════════════════
+           PLACAMP EPIC LOGIN — FULL IMMERSIVE DESIGN
+           ═══════════════════════════════════════════════ */
 
-<div class="login-card">
-    <div class="login-logo">
-        <span class="logo-icon">🎓</span>
-        <h1>Campus Placement Portal</h1>
-        <p>AI-Powered Job Recommendations</p>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700;900&family=Inter:wght@400;500;600&display=swap');
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            background: #04000f;
+        }
+
+        /* ── ANIMATED BACKGROUND CANVAS ── */
+        .bg-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            background: radial-gradient(ellipse at 20% 50%, #0d0025 0%, #04000f 60%);
+        }
+
+        /* Aurora waves */
+        .aurora {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.55;
+            mix-blend-mode: screen;
+        }
+        .aurora-1 {
+            width: 800px; height: 600px;
+            background: radial-gradient(ellipse, #7c3aed, transparent 70%);
+            top: -200px; left: -150px;
+            animation: aurora1 12s ease-in-out infinite;
+        }
+        .aurora-2 {
+            width: 700px; height: 500px;
+            background: radial-gradient(ellipse, #06b6d4, transparent 70%);
+            bottom: -180px; right: -150px;
+            animation: aurora2 15s ease-in-out infinite;
+        }
+        .aurora-3 {
+            width: 600px; height: 500px;
+            background: radial-gradient(ellipse, #ec4899, transparent 70%);
+            top: 30%; left: 40%;
+            animation: aurora3 18s ease-in-out infinite;
+        }
+        .aurora-4 {
+            width: 500px; height: 400px;
+            background: radial-gradient(ellipse, #10b981, transparent 70%);
+            top: -100px; right: 20%;
+            animation: aurora4 20s ease-in-out infinite;
+        }
+        .aurora-5 {
+            width: 400px; height: 350px;
+            background: radial-gradient(ellipse, #f59e0b, transparent 70%);
+            bottom: 10%; left: 15%;
+            animation: aurora1 14s ease-in-out infinite reverse;
+        }
+
+        @keyframes aurora1 {
+            0%,100% { transform: translate(0,0) scale(1) rotate(0deg); opacity:0.55; }
+            33%      { transform: translate(80px,60px) scale(1.15) rotate(5deg); opacity:0.7; }
+            66%      { transform: translate(-40px,100px) scale(0.9) rotate(-5deg); opacity:0.5; }
+        }
+        @keyframes aurora2 {
+            0%,100% { transform: translate(0,0) scale(1); opacity:0.55; }
+            50%      { transform: translate(-100px,-80px) scale(1.2); opacity:0.7; }
+        }
+        @keyframes aurora3 {
+            0%,100% { transform: translate(0,0) scale(1) rotate(0deg); opacity:0.45; }
+            33%      { transform: translate(-80px,50px) scale(1.2) rotate(10deg); opacity:0.6; }
+            66%      { transform: translate(60px,-60px) scale(0.85); opacity:0.4; }
+        }
+        @keyframes aurora4 {
+            0%,100% { transform: translate(0,0) scale(1); opacity:0.4; }
+            50%      { transform: translate(60px,80px) scale(1.25); opacity:0.6; }
+        }
+
+        /* Grid overlay */
+        .grid-overlay {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(124,58,237,0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124,58,237,0.08) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+        }
+
+        /* ── 3D FLOATING SHAPES ── */
+        .shapes-layer { position: absolute; inset: 0; }
+
+        /* Rotating wireframe cube */
+        .cube {
+            position: absolute;
+            transform-style: preserve-3d;
+            animation: rotateCube 18s linear infinite;
+        }
+        .cube-1 { width: 90px; height: 90px; top: 12%; left: 8%; }
+        .cube-2 { width: 55px; height: 55px; bottom: 20%; right: 10%; animation-duration: 25s; animation-direction: reverse; }
+        .cube-3 { width: 40px; height: 40px; top: 60%; left: 5%; animation-duration: 20s; }
+
+        .cube .face {
+            position: absolute;
+            border: 1.5px solid;
+            border-radius: 4px;
+            width: 100%; height: 100%;
+            opacity: 0.35;
+        }
+        .cube-1 .face { border-color: #a78bfa; }
+        .cube-2 .face { border-color: #67e8f9; }
+        .cube-3 .face { border-color: #f9a8d4; }
+
+        .face-front  { transform: translateZ(45px); }
+        .face-back   { transform: translateZ(-45px) rotateY(180deg); }
+        .face-left   { transform: rotateY(-90deg) translateZ(45px); }
+        .face-right  { transform: rotateY(90deg) translateZ(45px); }
+        .face-top    { transform: rotateX(90deg) translateZ(45px); }
+        .face-bottom { transform: rotateX(-90deg) translateZ(45px); }
+
+        @keyframes rotateCube {
+            from { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+            to   { transform: rotateX(360deg) rotateY(270deg) rotateZ(180deg); }
+        }
+
+        /* Floating rings */
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid;
+            opacity: 0.25;
+            animation: floatRing 8s ease-in-out infinite;
+        }
+        .ring-1 { width:140px; height:140px; border-color:#a78bfa; top:70%; left:85%; animation-delay:-3s; }
+        .ring-2 { width:80px;  height:80px;  border-color:#67e8f9; top:15%; right:8%; animation-delay:-6s; animation-duration:10s; }
+        .ring-3 { width:60px;  height:60px;  border-color:#f9a8d4; bottom:35%; left:80%; animation-delay:-1s; }
+        .ring-inner {
+            position: absolute;
+            inset: 15px;
+            border-radius: 50%;
+            border: 1px solid;
+            border-color: inherit;
+            opacity: 0.5;
+            animation: floatRing 4s ease-in-out infinite reverse;
+        }
+
+        @keyframes floatRing {
+            0%,100% { transform: translateY(0) rotate(0deg) scale(1); }
+            50%      { transform: translateY(-20px) rotate(180deg) scale(1.08); }
+        }
+
+        /* Floating triangles */
+        .tri {
+            position: absolute;
+            opacity: 0.18;
+            animation: floatTri 12s ease-in-out infinite;
+        }
+        .tri::before {
+            content:'';
+            display:block;
+            border-style:solid;
+        }
+        .tri-1 { top:25%; right:18%; animation-delay:-4s; }
+        .tri-1::before { border-width:0 40px 70px 40px; border-color:transparent transparent #c084fc transparent; }
+        .tri-2 { bottom:28%; left:12%; animation-delay:-8s; animation-duration:9s; }
+        .tri-2::before { border-width:0 25px 44px 25px; border-color:transparent transparent #34d399 transparent; }
+        .tri-3 { top:50%; right:5%; animation-delay:-2s; }
+        .tri-3::before { border-width:0 18px 31px 18px; border-color:transparent transparent #f472b6 transparent; }
+
+        @keyframes floatTri {
+            0%,100% { transform: translateY(0) rotate(0deg); }
+            33%      { transform: translateY(-25px) rotate(5deg); }
+            66%      { transform: translateY(10px) rotate(-5deg); }
+        }
+
+        /* Floating dots / particles */
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: twinkle 4s ease-in-out infinite;
+        }
+        .p1  { width:4px;  height:4px;  background:#a78bfa; top:20%; left:30%; animation-delay:0s; }
+        .p2  { width:3px;  height:3px;  background:#67e8f9; top:40%; left:70%; animation-delay:-.8s; }
+        .p3  { width:5px;  height:5px;  background:#f9a8d4; top:65%; left:25%; animation-delay:-1.6s; }
+        .p4  { width:3px;  height:3px;  background:#fbbf24; top:80%; left:55%; animation-delay:-2.4s; }
+        .p5  { width:4px;  height:4px;  background:#34d399; top:10%; left:50%; animation-delay:-3.2s; }
+        .p6  { width:3px;  height:3px;  background:#f472b6; top:55%; right:25%; animation-delay:-.5s; }
+        .p7  { width:5px;  height:5px;  background:#818cf8; top:30%; right:15%; animation-delay:-1.2s; }
+        .p8  { width:3px;  height:3px;  background:#2dd4bf; top:75%; right:40%; animation-delay:-2s; }
+        .p9  { width:4px;  height:4px;  background:#fb923c; top:45%; left:10%; animation-delay:-3s; }
+        .p10 { width:3px;  height:3px;  background:#e879f9; top:88%; left:80%; animation-delay:-.3s; }
+        .p11 { width:5px;  height:5px;  background:#4ade80; top:5%;  left:20%; animation-delay:-2.7s; }
+        .p12 { width:3px;  height:3px;  background:#38bdf8; top:95%; left:45%; animation-delay:-1s; }
+
+        @keyframes twinkle {
+            0%,100% { opacity:0.3; transform: scale(1); }
+            50%      { opacity:1;   transform: scale(1.5); }
+        }
+
+        /* Horizontal scan lines */
+        .scanline {
+            position: absolute;
+            left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(6,182,212,0.3), transparent);
+            animation: scan 8s linear infinite;
+        }
+        .scanline:nth-child(2) { animation-delay: -4s; }
+        @keyframes scan {
+            0%   { top: -2px; opacity:0; }
+            10%  { opacity:1; }
+            90%  { opacity:1; }
+            100% { top: 100%; opacity:0; }
+        }
+
+        /* ── MAIN LAYOUT ── */
+        .login-container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 480px;
+            padding: 1rem;
+            animation: enterScene 0.9s cubic-bezier(0.34,1.56,0.64,1);
+        }
+
+        @keyframes enterScene {
+            from { opacity:0; transform: translateY(50px) scale(0.92); }
+            to   { opacity:1; transform: translateY(0) scale(1); }
+        }
+
+        /* ── PLACAMP BRAND ── */
+        .placamp-brand {
+            text-align: center;
+        }
+
+        .brand-icon-wrap {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px; height: 80px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(124,58,237,0.3), rgba(6,182,212,0.2));
+            border: 1.5px solid rgba(167,139,250,0.4);
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            box-shadow: 0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2), inset 0 0 20px rgba(124,58,237,0.1);
+            animation: iconPulse 3s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+        }
+
+        @keyframes iconPulse {
+            0%,100% { box-shadow: 0 0 40px rgba(124,58,237,0.5), 0 0 80px rgba(124,58,237,0.2); transform: scale(1); }
+            50%      { box-shadow: 0 0 60px rgba(6,182,212,0.6), 0 0 100px rgba(6,182,212,0.25); transform: scale(1.05); }
+        }
+
+        .placamp-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4.5rem;
+            font-weight: 900;
+            letter-spacing: -4px;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg,
+                #fff 0%,
+                #c4b5fd 20%,
+                #67e8f9 40%,
+                #f9a8d4 60%,
+                #a78bfa 80%,
+                #fff 100%
+            );
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: gradientShift 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(167,139,250,0.6));
+        }
+
+        @keyframes gradientShift {
+            0%,100% { background-position: 0% 50%; }
+            50%      { background-position: 100% 50%; }
+        }
+
+        .placamp-sub {
+            font-size: 0.88rem;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 500;
+        }
+
+        .feature-pills {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 0.75rem;
+        }
+
+        .feature-pill {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border: 1px solid;
+        }
+        .pill-purple { background: rgba(124,58,237,0.2); border-color: rgba(167,139,250,0.4); color: #c4b5fd; }
+        .pill-cyan   { background: rgba(6,182,212,0.2); border-color: rgba(103,232,249,0.4); color: #67e8f9; }
+        .pill-pink   { background: rgba(236,72,153,0.2); border-color: rgba(249,168,212,0.4); color: #f9a8d4; }
+
+        /* ── LOGIN CARD ── */
+        .lcard {
+            width: 100%;
+            background: rgba(255,255,255,0.045);
+            backdrop-filter: blur(40px);
+            -webkit-backdrop-filter: blur(40px);
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 2.25rem 2rem;
+            box-shadow:
+                0 30px 80px rgba(0,0,0,0.5),
+                0 0 0 1px rgba(167,139,250,0.1),
+                inset 0 1px 0 rgba(255,255,255,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated glow border */
+        .lcard::before {
+            content:'';
+            position:absolute; inset:-1px;
+            border-radius:25px;
+            background: conic-gradient(
+                from var(--a, 0deg),
+                #7c3aed, #06b6d4, #ec4899, #10b981, #f59e0b, #7c3aed
+            );
+            animation: rotateBorder 4s linear infinite;
+            z-index:-1;
+            opacity:0.5;
+        }
+        .lcard::after {
+            content:'';
+            position:absolute; inset:1px;
+            border-radius:23px;
+            background: rgba(4,0,15,0.85);
+            z-index:-1;
+        }
+
+        @property --a {
+            syntax: '<angle>';
+            inherits: false;
+            initial-value: 0deg;
+        }
+        @keyframes rotateBorder {
+            to { --a: 360deg; }
+        }
+
+        /* Role tabs */
+        .role-tabs {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .role-tab { flex:1; cursor:pointer; }
+        .role-tab input { display:none; }
+        .role-tab span {
+            display: block;
+            text-align: center;
+            padding: 0.6rem;
+            border-radius: 9px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.45);
+            transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .role-tab input:checked + span {
+            background: linear-gradient(135deg, rgba(124,58,237,0.7), rgba(6,182,212,0.5));
+            color: white;
+            box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+            transform: scale(1.02);
+        }
+
+        /* Form fields */
+        .fgroup { margin-bottom: 1rem; }
+        .fgroup label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+        .fgroup input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            font-size: 0.92rem;
+            color: white;
+            outline: none;
+            transition: all 0.25s;
+            font-family: 'Inter', sans-serif;
+        }
+        .fgroup input::placeholder { color: rgba(255,255,255,0.25); }
+        .fgroup input:focus {
+            border-color: #7c3aed;
+            background: rgba(124,58,237,0.12);
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.2), 0 0 20px rgba(124,58,237,0.1);
+        }
+
+        /* CTA Button */
+        .cta-btn {
+            width: 100%;
+            padding: 0.9rem;
+            border-radius: 12px;
+            border: none;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
+            color: white;
+            letter-spacing: 0.5px;
+            box-shadow: 0 8px 30px rgba(124,58,237,0.5);
+            transition: all 0.3s;
+        }
+        .cta-btn::before {
+            content:'';
+            position:absolute; inset:0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+            opacity:0;
+            transition: opacity 0.3s;
+        }
+        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(124,58,237,0.6); }
+        .cta-btn:hover::before { opacity:1; }
+        .cta-btn:active { transform: translateY(-1px); }
+
+        /* Alerts */
+        .a-error   { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#fca5a5; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.88rem; }
+        .a-success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.3); color:#6ee7b7; border-radius:10px; padding:0.75rem 1rem; margin-bottom:1rem; font-size:0.88rem; }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 1.25rem;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+        }
+        .signup-link a {
+            color: #a78bfa;
+            font-weight: 600;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(167,139,250,0.3);
+            padding-bottom: 1px;
+            transition: color 0.2s;
+        }
+        .signup-link a:hover { color: #67e8f9; border-color: rgba(103,232,249,0.4); }
+    </style>
+</head>
+<body>
+
+<!-- ═══════ ANIMATED BACKGROUND ═══════ -->
+<div class="bg-canvas">
+    <div class="aurora aurora-1"></div>
+    <div class="aurora aurora-2"></div>
+    <div class="aurora aurora-3"></div>
+    <div class="aurora aurora-4"></div>
+    <div class="aurora aurora-5"></div>
+    <div class="grid-overlay"></div>
+
+    <!-- 3D Shapes Layer -->
+    <div class="shapes-layer">
+
+        <!-- Wireframe Cubes -->
+        <div class="cube cube-1">
+            <div class="face face-front"></div>
+            <div class="face face-back"></div>
+            <div class="face face-left"></div>
+            <div class="face face-right"></div>
+            <div class="face face-top"></div>
+            <div class="face face-bottom"></div>
+        </div>
+        <div class="cube cube-2" style="width:55px;height:55px;">
+            <div class="face face-front" style="transform:translateZ(27px)"></div>
+            <div class="face face-back"  style="transform:translateZ(-27px) rotateY(180deg)"></div>
+            <div class="face face-left"  style="transform:rotateY(-90deg) translateZ(27px)"></div>
+            <div class="face face-right" style="transform:rotateY(90deg) translateZ(27px)"></div>
+            <div class="face face-top"   style="transform:rotateX(90deg) translateZ(27px)"></div>
+            <div class="face face-bottom"style="transform:rotateX(-90deg) translateZ(27px)"></div>
+        </div>
+        <div class="cube cube-3" style="width:35px;height:35px;">
+            <div class="face face-front" style="transform:translateZ(17px)"></div>
+            <div class="face face-back"  style="transform:translateZ(-17px) rotateY(180deg)"></div>
+            <div class="face face-left"  style="transform:rotateY(-90deg) translateZ(17px)"></div>
+            <div class="face face-right" style="transform:rotateY(90deg) translateZ(17px)"></div>
+            <div class="face face-top"   style="transform:rotateX(90deg) translateZ(17px)"></div>
+            <div class="face face-bottom"style="transform:rotateX(-90deg) translateZ(17px)"></div>
+        </div>
+
+        <!-- Rings -->
+        <div class="ring ring-1"><div class="ring-inner"></div></div>
+        <div class="ring ring-2"><div class="ring-inner"></div></div>
+        <div class="ring ring-3"><div class="ring-inner"></div></div>
+
+        <!-- Triangles -->
+        <div class="tri tri-1"></div>
+        <div class="tri tri-2"></div>
+        <div class="tri tri-3"></div>
+
+        <!-- Particles / Stars -->
+        <div class="particle p1"></div>
+        <div class="particle p2"></div>
+        <div class="particle p3"></div>
+        <div class="particle p4"></div>
+        <div class="particle p5"></div>
+        <div class="particle p6"></div>
+        <div class="particle p7"></div>
+        <div class="particle p8"></div>
+        <div class="particle p9"></div>
+        <div class="particle p10"></div>
+        <div class="particle p11"></div>
+        <div class="particle p12"></div>
+
+        <!-- Scan lines -->
+        <div class="scanline"></div>
+        <div class="scanline"></div>
+    </div>
+</div>
+
+<!-- ═══════ LOGIN CONTENT ═══════ -->
+<div class="login-container">
+
+    <!-- BRAND -->
+    <div class="placamp-brand">
+        <div class="brand-icon-wrap">🚀</div>
+        <div class="placamp-title">PlaCamp</div>
+        <div class="placamp-sub">Campus Placement Portal</div>
+        <div class="feature-pills">
+            <span class="feature-pill pill-purple">🤖 AI-Powered</span>
+            <span class="feature-pill pill-cyan">📊 Smart Match</span>
+            <span class="feature-pill pill-pink">🎓 CIT Chennai</span>
+        </div>
     </div>
 
-    <!-- Error message -->
-    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+    <!-- CARD -->
+    <div class="lcard">
 
-    <form action="/login" method="post">
-        <!-- Role Selector -->
-        <div class="role-selector">
-            <label class="role-btn">
-                <input type="radio" name="role" value="student" checked>
-                <span>🎓 Student</span>
-            </label>
-            <label class="role-btn">
-                <input type="radio" name="role" value="admin">
-                <span>🛡 Admin</span>
-            </label>
+        <div th:if="${error}"   class="a-error"   th:text="${error}"></div>
+        <div th:if="${success}" class="a-success" th:text="${success}"></div>
+
+        <form action="/login" method="post">
+            <!-- Role Tabs -->
+            <div class="role-tabs">
+                <label class="role-tab">
+                    <input type="radio" name="role" value="student" checked>
+                    <span>🎓 Student</span>
+                </label>
+                <label class="role-tab">
+                    <input type="radio" name="role" value="admin">
+                    <span>🛡️ Admin</span>
+                </label>
+            </div>
+
+            <div class="fgroup">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Enter your username" required autofocus>
+            </div>
+            <div class="fgroup">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Enter your password" required>
+            </div>
+
+            <button type="submit" class="cta-btn">Launch into PlaCamp →</button>
+        </form>
+
+        <div class="signup-link">
+            New student? <a th:href="@{/signup}">Sign Up with College Email</a>
         </div>
-
-        <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" placeholder="Enter username" required autocomplete="username">
+        <div class="signup-link" style="margin-top:.5rem;font-size:.8rem;">
+            Are you a recruiter? <a th:href="@{/company/login}" style="color:#fbbf24;">🏢 Company Login →</a>
         </div>
+    </div>
 
-        <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" placeholder="Enter password" required autocomplete="current-password">
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-block">Login →</button>
-    </form>
 </div>
 
 </body>

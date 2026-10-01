@@ -1,0 +1,118 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlaCamp — Student Sign Up</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body class="signup-page">
+
+<div class="signup-card">
+    <div class="login-logo">
+        <div class="logo-icon">🎓</div>
+        <h1>Join PlaCamp</h1>
+        <p>Sign up with your CIT Chennai college email</p>
+    </div>
+
+    <!-- Error -->
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+
+    <form action="/signup" method="post">
+
+        <!-- College Email — shown first and prominently -->
+        <div class="form-group">
+            <label>🏫 College Email ID</label>
+            <input type="email" name="email"
+                   th:value="${formData_email}"
+                   placeholder="yourname.dept@citchennai.net"
+                   required
+                   pattern=".*@citchennai\.net$"
+                   title="Must be a CIT Chennai email ending with @citchennai.net">
+            <small style="color:#718096;">Only <b>@citchennai.net</b> emails are accepted</small>
+        </div>
+
+        <!-- Username -->
+        <div class="form-group">
+            <label>👤 Choose Your Username</label>
+            <input type="text" name="username"
+                   th:value="${formData_username}"
+                   placeholder="e.g. oviya_cse"
+                   required
+                   pattern="[a-zA-Z0-9._\-]+"
+                   title="Only letters, numbers, dots, underscores and hyphens allowed">
+            <small style="color:#718096;">This is what you'll use to <b>login</b></small>
+        </div>
+
+        <!-- Name and Phone side by side -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name"
+                       th:value="${formData_name}"
+                       placeholder="e.g. Oviya P"
+                       required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" name="phone"
+                       th:value="${formData_phone}"
+                       placeholder="10-digit number">
+            </div>
+        </div>
+
+        <!-- Department and Pass Year -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Department</label>
+                <select name="department" required>
+                    <option value="" disabled selected>Select Dept</option>
+                    <option th:selected="${formData_dept == 'CSE'}"  value="CSE">CSE</option>
+                    <option th:selected="${formData_dept == 'IT'}"   value="IT">IT</option>
+                    <option th:selected="${formData_dept == 'ECE'}"  value="ECE">ECE</option>
+                    <option th:selected="${formData_dept == 'EEE'}"  value="EEE">EEE</option>
+                    <option th:selected="${formData_dept == 'MECH'}" value="MECH">MECH</option>
+                    <option th:selected="${formData_dept == 'CIVIL'}"value="CIVIL">CIVIL</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Pass Year</label>
+                <input type="number" name="passYear"
+                       th:value="${formData_passYear != null ? formData_passYear : 2025}"
+                       min="2020" max="2030" required>
+            </div>
+        </div>
+
+        <!-- CGPA -->
+        <div class="form-group">
+            <label>CGPA (out of 10)</label>
+            <input type="number" name="cgpa"
+                   th:value="${formData_cgpa}"
+                   step="0.01" min="0" max="10"
+                   placeholder="e.g. 8.5" required>
+        </div>
+
+        <!-- Password -->
+        <div class="form-grid">
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password"
+                       placeholder="Create password" required minlength="6">
+            </div>
+            <div class="form-group">
+                <label>Confirm Password</label>
+                <input type="password" name="confirmPassword"
+                       placeholder="Repeat password" required minlength="6">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Create Account →</button>
+    </form>
+
+    <div style="text-align:center;margin-top:1.25rem;font-size:0.88rem;color:#718096;">
+        Already have an account?
+        <a th:href="@{/login}" style="color:#3b82f6;font-weight:600;">Login here</a>
+    </div>
+</div>
+
+</body>
+</html>

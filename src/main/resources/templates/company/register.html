@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PlaCamp — Company Register</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .reg-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem; }
+        .reg-card {
+            background:rgba(255,255,255,0.06); border:1px solid rgba(167,139,250,0.25);
+            border-radius:1.5rem; padding:2.2rem 2rem; width:100%; max-width:520px;
+            backdrop-filter:blur(16px); box-shadow:0 20px 60px rgba(0,0,0,.4);
+        }
+        .reg-logo { text-align:center; margin-bottom:1.4rem; }
+        .reg-logo .brand { font-size:1.7rem; font-weight:900;
+            background:linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .reg-logo .sub { font-size:0.78rem; color:#94a3b8; margin-top:.2rem; }
+        .section-head {
+            font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px;
+            color:#a78bfa; margin:1rem 0 .6rem; display:flex; align-items:center; gap:.4rem;
+        }
+        .section-divider { height:1px; background:rgba(167,139,250,.15); margin:1rem 0; }
+        .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+        .form-group { margin-bottom:.8rem; }
+        .form-group label {
+            display:block; font-size:.72rem; color:#94a3b8;
+            margin-bottom:.3rem; font-weight:600; text-transform:uppercase; letter-spacing:.4px;
+        }
+        .form-group input {
+            width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(167,139,250,.2);
+            border-radius:.6rem; padding:.65rem .9rem; color:#e2e8f0; font-size:.88rem; outline:none;
+            transition:border-color .2s;
+        }
+        .form-group input:focus { border-color:#a78bfa; box-shadow:0 0 0 3px rgba(167,139,250,.12); }
+        .form-group input::placeholder { color:#475569; }
+        .btn-submit {
+            width:100%; background:linear-gradient(135deg,#7c3aed,#06b6d4); border:none;
+            border-radius:.7rem; padding:.85rem; color:#fff; font-size:.95rem;
+            font-weight:700; cursor:pointer; transition:opacity .2s; margin-top:.5rem;
+        }
+        .btn-submit:hover { opacity:.88; }
+        .info-box {
+            background:rgba(167,139,250,.08); border:1px solid rgba(167,139,250,.18);
+            border-radius:.6rem; padding:.7rem .9rem; font-size:.78rem; color:#94a3b8;
+            margin-bottom:1rem; line-height:1.6;
+        }
+        .notice-box {
+            background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.2);
+            border-radius:.6rem; padding:.6rem .9rem; font-size:.75rem; color:#fbbf24;
+            margin-bottom:.8rem;
+        }
+        .alert-err { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3);
+            color:#f87171; border-radius:.6rem; padding:.7rem 1rem; margin-bottom:1rem; font-size:.85rem; }
+        .alert-ok  { background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.3);
+            color:#34d399; border-radius:.6rem; padding:.7rem 1rem; margin-bottom:1rem; font-size:.85rem; }
+        .login-links { text-align:center; margin-top:1.1rem; font-size:.82rem; color:#94a3b8; }
+        .login-links a { color:#a78bfa; text-decoration:none; font-weight:600; }
+        .login-links a:hover { text-decoration:underline; }
+        @media(max-width:480px){ .form-row{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+</div>
+<div class="page-content">
+<div class="reg-wrap">
+    <div class="reg-card">
+        <div class="reg-logo">
+            <div class="brand">🏢 PlaCamp</div>
+            <div class="sub">Company Portal — New Registration</div>
+        </div>
+
+        <div th:if="${error}"   class="alert-err" th:text="${error}"></div>
+        <div th:if="${success}" class="alert-ok"  th:text="${success}"></div>
+
+        <div class="info-box">
+            ✨ Register your company on PlaCamp. Fill in your company details and choose login credentials.
+            Your account will be <strong style="color:#a78bfa;">reviewed by the admin</strong> before activation.
+        </div>
+
+        <form th:action="@{/company/register}" method="post">
+            <input type="hidden" name="registerType" value="new">
+
+            <!-- Company Info -->
+            <div class="section-head">🏢 Company Details</div>
+
+            <div class="form-group">
+                <label>Company Name *</label>
+                <input type="text" name="companyName" placeholder="e.g. Accenture India" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Industry</label>
+                    <input type="text" name="industry" placeholder="e.g. IT Services">
+                </div>
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" name="location" placeholder="e.g. Chennai">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Official Email</label>
+                    <input type="email" name="contactEmail" placeholder="hr@company.com">
+                </div>
+                <div class="form-group">
+                    <label>Contact Phone</label>
+                    <input type="tel" name="contactPhone" placeholder="044-12345678">
+                </div>
+            </div>
+
+            <!-- Portal Credentials -->
+            <div class="section-divider"></div>
+            <div class="section-head">🔐 Portal Login Credentials</div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Username *</label>
+                    <input type="text" name="username" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label>Password *</label>
+                    <input type="password" name="password" placeholder="Min 6 characters" required minlength="6">
+                </div>
+            </div>
+
+            <div class="notice-box">
+                ⏳ Account activation requires admin approval — usually within 24 hours.
+            </div>
+
+            <button type="submit" class="btn-submit">
+                🚀 Submit Registration Request
+            </button>
+        </form>
+
+        <div class="login-links">
+            <p>Already have an account? <a th:href="@{/company/login}">Login →</a></p>
+            <p style="margin-top:.4rem;">Student / Admin? <a th:href="@{/login}">Login here →</a></p>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

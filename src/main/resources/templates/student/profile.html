@@ -4,11 +4,85 @@
     <meta charset="UTF-8">
     <title>My Profile</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .profile-photo-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        .profile-photo-img {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #3b82f6;
+            box-shadow: 0 4px 16px rgba(59,130,246,0.2);
+        }
+        .photo-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg,#1e3a5f,#3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            color: white;
+            border: 4px solid #3b82f6;
+        }
+        .upload-label {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            background: #eff6ff;
+            border: 1.5px dashed #3b82f6;
+            border-radius: 8px;
+            color: #1d4ed8;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .upload-label:hover { background: #dbeafe; }
+        .resume-box {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: #f0fdf4;
+            border: 1.5px solid #bbf7d0;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        .resume-icon { font-size: 2rem; }
+        .resume-info { flex: 1; }
+        .resume-info small { color: #718096; font-size: 0.78rem; }
+    </style>
 </head>
 <body>
+<!-- PlaCamp Aurora Background -->
+<div class="page-bg">
+    <div class="aurora a1"></div>
+    <div class="aurora a2"></div>
+    <div class="aurora a3"></div>
+    <div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
+<div class="page-content">
 
 <nav class="navbar">
-    <div class="nav-brand">🎓 Campus Placement Portal</div>
+    <div class="nav-brand">🎓 PlaCamp</div>
     <div class="nav-links">
         <a th:href="@{/student/dashboard}">Dashboard</a>
         <a th:href="@{/student/jobs}">Jobs</a>
@@ -25,10 +99,39 @@
     </div>
 
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
 
     <div class="profile-grid">
-        <!-- Read-only Info -->
+
+        <!-- LEFT: Photo + Read-only Info -->
         <div class="card">
+
+            <!-- Profile Photo -->
+            <div class="profile-photo-wrap">
+                <img th:if="${student.hasPhoto()}"
+                     th:src="@{/uploads/photos/__${student.profilePhoto}__}"
+                     class="profile-photo-img"
+                     alt="Profile Photo">
+                <div th:unless="${student.hasPhoto()}" class="photo-placeholder">
+                    <span th:text="${#strings.toUpperCase(#strings.substring(student.name,0,1))}">?</span>
+                </div>
+                <div style="font-weight:700;font-size:1.05rem;" th:text="${student.name}"></div>
+                <div style="color:#718096;font-size:0.85rem;" th:text="${student.department + ' · ' + student.passYear}"></div>
+            </div>
+
+            <!-- Upload Photo Form -->
+            <form th:action="@{/student/upload-photo}" method="post"
+                  enctype="multipart/form-data" style="text-align:center;margin-bottom:1.25rem;">
+                <label class="upload-label" for="photoInput">📷 Change Photo</label>
+                <input type="file" id="photoInput" name="photo"
+                       accept="image/jpeg,image/png,image/jpg"
+                       style="display:none"
+                       onchange="this.form.submit()">
+                <div style="font-size:0.75rem;color:#718096;margin-top:0.3rem;">JPG or PNG, max 5MB</div>
+            </form>
+
+            <hr style="border:none;border-top:1px solid #e2e8f0;margin-bottom:1rem;">
+
             <h3>Account Details</h3>
             <div class="profile-field">
                 <label>Student ID</label>
@@ -60,33 +163,74 @@
             </div>
         </div>
 
-        <!-- Editable Info -->
-        <div class="card">
-            <h3>Update Profile</h3>
-            <form th:action="@{/student/profile}" method="post">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" name="email" th:value="${student.email}" required>
+        <!-- RIGHT: Edit Info + Resume -->
+        <div>
+
+            <!-- Resume Section -->
+            <div class="card">
+                <h3>📄 Resume</h3>
+
+                <!-- Resume exists -->
+                <div th:if="${student.hasResume()}" class="resume-box">
+                    <div class="resume-icon">📋</div>
+                    <div class="resume-info">
+                        <div style="font-weight:600;color:#065f46;">Resume Uploaded ✅</div>
+                        <small th:text="${student.resumePath}"></small>
+                    </div>
+                    <a th:href="@{/uploads/resumes/__${student.resumePath}__}"
+                       target="_blank"
+                       class="btn btn-success btn-sm">View PDF</a>
                 </div>
-                <div class="form-group">
-                    <label>Phone</label>
-                    <input type="text" name="phone" th:value="${student.phone}">
+
+                <!-- No resume -->
+                <div th:unless="${student.hasResume()}"
+                     style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:8px;
+                            padding:0.85rem;margin-bottom:1rem;font-size:0.85rem;color:#92400e;">
+                    ⚠️ No resume uploaded yet. Upload your resume to improve job applications!
                 </div>
-                <div class="form-group">
-                    <label>Skills <small>(comma-separated, e.g. Java,SQL,Python)</small></label>
-                    <input type="text" name="skills" th:value="${student.skills}"
-                           placeholder="Java,SQL,Spring Boot,Python">
-                </div>
-                <div class="form-group">
-                    <label>Preferred Job Role</label>
-                    <input type="text" name="preferredRole" th:value="${student.preferredRole}"
-                           placeholder="e.g. Backend Developer">
-                </div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+
+                <!-- Upload Resume Form -->
+                <form th:action="@{/student/upload-resume}" method="post"
+                      enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Upload / Replace Resume (PDF only)</label>
+                        <input type="file" name="resume" accept="application/pdf" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">📤 Upload Resume</button>
+                </form>
+            </div>
+
+            <!-- Edit Profile Form -->
+            <div class="card">
+                <h3>✏️ Update Profile</h3>
+                <form th:action="@{/student/profile}" method="post">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" name="email" th:value="${student.email}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="text" name="phone" th:value="${student.phone}">
+                    </div>
+                    <div class="form-group">
+                        <label>Skills <small>(comma-separated, e.g. Java,SQL,Python)</small></label>
+                        <input type="text" name="skills" th:value="${student.skills}"
+                               placeholder="Java,SQL,Spring Boot,Python">
+                    </div>
+                    <div class="form-group">
+                        <label>Preferred Job Role</label>
+                        <input type="text" name="preferredRole" th:value="${student.preferredRole}"
+                               placeholder="e.g. Backend Developer">
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+                </form>
+            </div>
+
         </div>
     </div>
 </div>
 
+</div>
 </body>
 </html>
+

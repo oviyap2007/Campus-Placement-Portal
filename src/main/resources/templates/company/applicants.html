@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Applicants — PlaCamp</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Job selector tabs */
+        .job-tabs { display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1.2rem; }
+        .job-tab { padding:.45rem 1rem; border-radius:999px; font-size:.8rem; font-weight:600;
+            text-decoration:none; border:1px solid rgba(167,139,250,.2); color:#94a3b8; transition:all .2s; }
+        .job-tab:hover { border-color:#a78bfa; color:#a78bfa; }
+        .job-tab.active { background:linear-gradient(135deg,#7c3aed,#06b6d4); color:#fff; border-color:transparent; }
+
+        /* Step Tracker */
+        .step-tracker { display:flex; align-items:center; gap:0; margin:0.5rem 0; }
+        .step-item { display:flex; flex-direction:column; align-items:center; position:relative; }
+        .step-circle {
+            width:30px; height:30px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:.75rem; font-weight:800; flex-shrink:0;
+            transition:all .3s;
+        }
+        .step-passed   { background:rgba(52,211,153,.2);  color:#34d399; border:2px solid #34d399; }
+        .step-pending  { background:rgba(167,139,250,.2); color:#a78bfa; border:2px solid #a78bfa; }
+        .step-failed   { background:rgba(248,113,113,.2); color:#f87171; border:2px solid #f87171; }
+        .step-waiting  { background:rgba(255,255,255,.06); color:#94a3b8; border:2px solid rgba(255,255,255,.15); }
+        .step-label { font-size:.6rem; color:#94a3b8; margin-top:.25rem; text-align:center; max-width:60px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .step-connector { height:2px; width:24px; flex-shrink:0; }
+        .conn-passed  { background:#34d399; }
+        .conn-pending { background:linear-gradient(90deg,#34d399,#a78bfa); }
+        .conn-waiting { background:rgba(255,255,255,.1); }
+        .conn-failed  { background:#f87171; }
+
+        /* Applicant card */
+        .app-card { background:rgba(255,255,255,.05); border:1px solid rgba(167,139,250,.12);
+            border-radius:.9rem; padding:1.1rem 1.2rem; margin-bottom:1rem; }
+        .app-card-top { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.5rem; }
+        .app-student-name { font-size:1rem; font-weight:700; color:#e2e8f0; }
+        .app-meta { font-size:.75rem; color:#94a3b8; margin-top:.15rem; }
+        .app-status-wrap { display:flex; align-items:center; gap:.5rem; }
+        .app-actions { display:flex; gap:.5rem; flex-wrap:wrap; margin-top:.8rem; padding-top:.8rem; border-top:1px solid rgba(255,255,255,.06); }
+
+        /* Remarks modal trigger */
+        .action-btn { display:inline-flex; align-items:center; gap:.3rem; padding:.4rem .8rem;
+            border-radius:.5rem; font-size:.78rem; font-weight:700; border:none; cursor:pointer; transition:all .2s; }
+        .btn-pass { background:rgba(52,211,153,.2); color:#34d399; border:1px solid rgba(52,211,153,.35); }
+        .btn-pass:hover { background:rgba(52,211,153,.35); }
+        .btn-fail { background:rgba(248,113,113,.15); color:#f87171; border:1px solid rgba(248,113,113,.3); }
+        .btn-fail:hover { background:rgba(248,113,113,.3); }
+        .btn-shortlist { background:rgba(167,139,250,.2); color:#a78bfa; border:1px solid rgba(167,139,250,.35); }
+        .btn-shortlist:hover { background:rgba(167,139,250,.35); }
+
+        /* Round modal */
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:1000; align-items:center; justify-content:center; }
+        .modal-overlay.show { display:flex; }
+        .modal-box { background:#1e1b4b; border:1px solid rgba(167,139,250,.3); border-radius:1rem; padding:1.5rem; width:100%; max-width:420px; }
+        .modal-title { font-size:1rem; font-weight:700; color:#e2e8f0; margin-bottom:1rem; }
+        .modal-label { font-size:.78rem; color:#94a3b8; margin-bottom:.4rem; font-weight:600; }
+        .modal-input { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(167,139,250,.2);
+            border-radius:.6rem; padding:.65rem .9rem; color:#e2e8f0; font-size:.88rem; margin-bottom:1rem; resize:vertical; }
+        .modal-btns { display:flex; gap:.7rem; }
+
+        /* No rounds warning */
+        .no-rounds-warn { background:rgba(251,191,36,.08); border:1px solid rgba(251,191,36,.25);
+            border-radius:.7rem; padding:.8rem 1rem; font-size:.82rem; color:#fbbf24; margin-bottom:1rem; }
+
+        /* Remarks badge */
+        .remarks-note { font-size:.7rem; color:#94a3b8; font-style:italic; margin-top:.2rem; }
+    </style>
+</head>
+<body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+</div>
+<div class="page-content">
+
+<nav class="navbar">
+    <div class="nav-brand">🏢 <span th:text="${company.companyName}">Company</span></div>
+    <div class="nav-links">
+        <a th:href="@{/company/dashboard}">Dashboard</a>
+        <a th:href="@{/company/jobs}">My Jobs</a>
+        <a th:href="@{/company/applicants}" class="active">Applicants</a>
+        <a th:href="@{/company/profile}">Profile</a>
+        <a th:href="@{/company/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+    <!-- Job Tabs -->
+    <div class="section-title" style="margin-bottom:.8rem;">👥 Applicants by Job</div>
+    <div class="job-tabs">
+        <a th:each="job : ${myJobs}"
+           th:href="@{'/company/applicants/' + ${job.jobId}}"
+           class="job-tab"
+           th:classappend="${job.jobId == selectedJobId} ? ' active' : ''"
+           th:text="${job.title}">Job</a>
+    </div>
+
+    <!-- Selected Job Info -->
+    <div th:if="${selectedJob}" style="margin-bottom:1rem;">
+        <h3 style="font-size:1rem;color:#e2e8f0;font-weight:700;" th:text="${selectedJob.title}">Job</h3>
+        <div style="font-size:.78rem;color:#94a3b8;margin-top:.2rem;">
+            Min CGPA: <b th:text="${selectedJob.minCgpa}">0</b> &nbsp;·&nbsp;
+            Salary: <b th:text="${selectedJob.formattedSalary}">—</b> &nbsp;·&nbsp;
+            Deadline: <b th:text="${selectedJob.deadline}">—</b>
+        </div>
+    </div>
+
+    <!-- No Rounds Warning -->
+    <div th:unless="${hasRounds}" class="no-rounds-warn">
+        ⚠️ No interview rounds defined for this job yet.
+        <a th:href="@{/company/jobs}" style="color:#fbbf24;font-weight:700;">Go to Jobs → define rounds first</a>
+        before shortlisting students.
+    </div>
+
+    <!-- Applicants -->
+    <div th:if="${#lists.isEmpty(appsWithProgress)}"
+         style="font-size:.85rem;color:#94a3b8;padding:1rem 0;">
+        No applicants for this job yet.
+    </div>
+
+    <div th:each="item : ${appsWithProgress}" class="app-card">
+        <div class="app-card-top">
+            <div>
+                <div class="app-student-name">
+                    <span th:text="${item.student?.name ?: item.app.studentName}">Student</span>
+                </div>
+                <div class="app-meta">
+                    CGPA: <b th:text="${item.student?.cgpa}">0</b> &nbsp;·&nbsp;
+                    Dept: <b th:text="${item.student?.department}">—</b> &nbsp;·&nbsp;
+                    Skills: <b th:text="${item.student?.skills}">—</b>
+                </div>
+            </div>
+            <div class="app-status-wrap">
+                <span th:class="'badge badge-' + ${item.app.statusBadgeClass}"
+                      th:text="${item.app.status}">Status</span>
+                <span style="font-size:.7rem;color:#94a3b8;" th:text="'Applied: ' + ${item.app.applyDate}">Date</span>
+            </div>
+        </div>
+
+        <!-- Step Tracker -->
+        <div th:unless="${#lists.isEmpty(item.roundResults)}" style="margin-top:.8rem;">
+            <div style="font-size:.75rem;color:#94a3b8;margin-bottom:.4rem;font-weight:600;">INTERVIEW PROGRESS</div>
+            <div class="step-tracker">
+                <div th:each="rr, iter : ${item.roundResults}" style="display:flex;align-items:center;">
+                    <div class="step-item">
+                        <div class="step-circle"
+                             th:classappend="${rr.status.name() == 'PASSED'} ? ' step-passed' :
+                                             (${rr.status.name() == 'PENDING'} ? ' step-pending' :
+                                             (${rr.status.name() == 'FAILED'} ? ' step-failed' : ' step-waiting'))"
+                             th:text="${rr.status.icon}">○</div>
+                        <div class="step-label" th:text="${rr.roundName}">Round</div>
+                    </div>
+                    <div th:unless="${iter.last}" class="step-connector"
+                         th:classappend="${rr.status.name() == 'PASSED'} ? ' conn-passed' :
+                                         (${rr.status.name() == 'FAILED'} ? ' conn-failed' : ' conn-waiting')">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Current pending round -->
+        <div th:if="${item.currentRound != null}" style="margin-top:.5rem;">
+            <span style="font-size:.75rem;color:#a78bfa;font-weight:600;">
+                🔄 Currently at: <span th:text="${item.currentRound.roundName}">Round</span>
+            </span>
+        </div>
+
+        <!-- Failed round remarks -->
+        <div th:each="rr : ${item.roundResults}"
+             th:if="${rr.status.name() == 'FAILED' and rr.remarks != null and !rr.remarks.isEmpty()}">
+            <div class="remarks-note">
+                ❌ Failed at <span th:text="${rr.roundName}">Round</span>:
+                "<span th:text="${rr.remarks}">Remarks</span>"
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="app-actions">
+            <!-- Shortlist (if status is APPLIED) -->
+            <form th:if="${item.app.status.name() == 'APPLIED' and hasRounds}"
+                  th:action="@{'/company/shortlist/' + ${item.app.applicationId}}" method="post" style="margin:0;">
+                <button type="submit" class="action-btn btn-shortlist">📋 Shortlist &amp; Start Rounds</button>
+            </form>
+
+            <!-- Pass / Fail current round -->
+            <div th:if="${item.currentRound != null}" style="display:flex;gap:.5rem;">
+                <button class="action-btn btn-pass"
+                        th:onclick="'openPass(' + ${item.app.applicationId} + ',' + ${item.currentRound.roundId} + ',\'' + ${item.currentRound.roundName} + '\')'">
+                    ✓ Pass Round
+                </button>
+                <button class="action-btn btn-fail"
+                        th:onclick="'openFail(' + ${item.app.applicationId} + ',' + ${item.currentRound.roundId} + ',\'' + ${item.currentRound.roundName} + '\')'">
+                    ✗ Fail Round
+                </button>
+            </div>
+
+            <!-- Already selected -->
+            <span th:if="${item.app.status.name() == 'SELECTED'}"
+                  style="font-size:.82rem;color:#34d399;font-weight:700;">🎉 Selected &amp; Placed!</span>
+
+            <!-- Already rejected -->
+            <span th:if="${item.app.status.name() == 'REJECTED'}"
+                  style="font-size:.82rem;color:#f87171;font-weight:700;">❌ Rejected</span>
+        </div>
+    </div>
+</div>
+</div>
+
+<!-- Pass Modal -->
+<div id="passModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-title">✅ Pass Round</div>
+        <div class="modal-label">Round: <span id="passRoundName">—</span></div>
+        <textarea id="passRemarks" class="modal-input" rows="3" placeholder="Optional: feedback or remarks for this round..."></textarea>
+        <div class="modal-btns">
+            <form id="passForm" method="post" style="margin:0;flex:1;">
+                <input type="hidden" name="remarks" id="passRemarksInput">
+                <button type="submit" class="btn btn-primary" style="width:100%;">✓ Confirm Pass</button>
+            </form>
+            <button class="btn" onclick="closeModals()" style="flex:.5;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Fail Modal -->
+<div id="failModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-title" style="color:#f87171;">❌ Fail Round</div>
+        <div class="modal-label">Round: <span id="failRoundName">—</span></div>
+        <textarea id="failRemarks" class="modal-input" rows="3" placeholder="Reason for failing (optional)..."></textarea>
+        <div class="modal-btns">
+            <form id="failForm" method="post" style="margin:0;flex:1;">
+                <input type="hidden" name="remarks" id="failRemarksInput">
+                <button type="submit" class="btn" style="width:100%;background:rgba(248,113,113,.25);color:#f87171;border:1px solid rgba(248,113,113,.4);">✗ Confirm Fail</button>
+            </form>
+            <button class="btn" onclick="closeModals()" style="flex:.5;">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+function openPass(appId, roundId, roundName) {
+    document.getElementById('passRoundName').textContent = roundName;
+    document.getElementById('passForm').action = `/company/round/pass/${appId}/${roundId}`;
+    document.getElementById('passModal').classList.add('show');
+}
+function openFail(appId, roundId, roundName) {
+    document.getElementById('failRoundName').textContent = roundName;
+    document.getElementById('failForm').action = `/company/round/fail/${appId}/${roundId}`;
+    document.getElementById('failModal').classList.add('show');
+}
+function closeModals() {
+    document.getElementById('passModal').classList.remove('show');
+    document.getElementById('failModal').classList.remove('show');
+}
+// Copy textarea to hidden input before submit
+document.getElementById('passForm').addEventListener('submit', () => {
+    document.getElementById('passRemarksInput').value = document.getElementById('passRemarks').value;
+});
+document.getElementById('failForm').addEventListener('submit', () => {
+    document.getElementById('failRemarksInput').value = document.getElementById('failRemarks').value;
+});
+</script>
+</body>
+</html>

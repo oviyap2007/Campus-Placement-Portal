@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Company Profile — PlaCamp</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+</div>
+<div class="page-content">
+<nav class="navbar">
+    <div class="nav-brand">🏢 <span th:text="${company.companyName}">Company</span></div>
+    <div class="nav-links">
+        <a th:href="@{/company/dashboard}">Dashboard</a>
+        <a th:href="@{/company/jobs}">My Jobs</a>
+        <a th:href="@{/company/applicants}">Applicants</a>
+        <a th:href="@{/company/profile}" class="active">Profile</a>
+        <a th:href="@{/company/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+<div class="main-content">
+    <div class="welcome-banner">
+        <h2>🏢 Company Profile</h2>
+        <p>Your company information as registered on PlaCamp</p>
+    </div>
+    <div class="profile-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:700px;">
+        <div class="stat-card">
+            <div class="stat-label">Company Name</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-top:.3rem;" th:text="${company.companyName}">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Industry</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-top:.3rem;" th:text="${company.industry}">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Location</div>
+            <div style="font-size:1.1rem;font-weight:700;color:#e2e8f0;margin-top:.3rem;" th:text="${company.location}">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Contact Email</div>
+            <div style="font-size:1rem;font-weight:700;color:#a78bfa;margin-top:.3rem;" th:text="${company.contactEmail}">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Portal Username</div>
+            <div style="font-size:1rem;font-weight:700;color:#67e8f9;margin-top:.3rem;" th:text="${company.username}">—</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Account Status</div>
+            <div style="margin-top:.3rem;">
+                <span class="badge badge-selected" th:if="${company.approved}">✅ Approved</span>
+                <span class="badge badge-applied" th:unless="${company.approved}">⏳ Pending</span>
+            </div>
+        </div>
+    </div>
+    <div style="margin-top:1.5rem;">
+        <p style="font-size:.82rem;color:#94a3b8;">To update company details, please contact the placement admin.</p>
+    </div>
+</div>
+</div>
+</body>
+</html>

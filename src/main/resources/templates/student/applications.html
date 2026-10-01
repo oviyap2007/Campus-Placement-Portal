@@ -2,13 +2,89 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>My Applications</title>
+    <title>My Applications — PlaCamp</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Application card */
+        .app-card { background:rgba(255,255,255,.05); border:1px solid rgba(167,139,250,.15);
+            border-radius:1rem; padding:1.2rem 1.4rem; margin-bottom:1.2rem; }
+        .app-card-top { display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:.5rem; margin-bottom:.9rem; }
+        .app-job-title { font-size:1.05rem; font-weight:800; color:#e2e8f0; }
+        .app-company   { font-size:.8rem; color:#a78bfa; font-weight:600; margin-top:.2rem; }
+        .app-meta      { font-size:.75rem; color:#94a3b8; margin-top:.15rem; }
+
+        /* ── Step Tracker ─────────────────── */
+        .tracker-wrap  { margin-top:.8rem; }
+        .tracker-title { font-size:.72rem; color:#94a3b8; text-transform:uppercase; letter-spacing:.8px; font-weight:700; margin-bottom:.7rem; }
+        .step-row      { display:flex; align-items:flex-start; }
+
+        .step-node {
+            display:flex; flex-direction:column; align-items:center; flex-shrink:0;
+        }
+        .step-circle {
+            width:34px; height:34px; border-radius:50%;
+            display:flex; align-items:center; justify-content:center;
+            font-size:.85rem; font-weight:800; transition:all .3s;
+        }
+        .circle-passed  { background:rgba(52,211,153,.2);  color:#34d399; border:2.5px solid #34d399;  box-shadow:0 0 10px rgba(52,211,153,.3); }
+        .circle-pending { background:rgba(167,139,250,.2); color:#a78bfa; border:2.5px solid #a78bfa;  box-shadow:0 0 10px rgba(167,139,250,.4); animation:pulse 1.5s infinite; }
+        .circle-failed  { background:rgba(248,113,113,.2); color:#f87171; border:2.5px solid #f87171;  box-shadow:0 0 10px rgba(248,113,113,.3); }
+        .circle-waiting { background:rgba(255,255,255,.04); color:#475569; border:2px solid rgba(255,255,255,.12); }
+
+        @keyframes pulse {
+            0%,100% { box-shadow:0 0 10px rgba(167,139,250,.4); }
+            50%      { box-shadow:0 0 20px rgba(167,139,250,.8); }
+        }
+
+        .step-vline { width:2px; flex-grow:1; min-height:36px; margin:0 auto; }
+        .vline-passed  { background:#34d399; }
+        .vline-pending { background:linear-gradient(180deg,#a78bfa,rgba(167,139,250,.2)); }
+        .vline-waiting { background:rgba(255,255,255,.08); }
+        .vline-failed  { background:#f87171; }
+
+        .step-content { margin-left:.9rem; padding-bottom:1rem; flex:1; }
+        .step-round-name { font-size:.85rem; font-weight:700; color:#e2e8f0; }
+        .step-status-label {
+            display:inline-block; font-size:.65rem; font-weight:700; padding:.15rem .5rem;
+            border-radius:999px; margin-left:.5rem; vertical-align:middle;
+        }
+        .lbl-passed  { background:rgba(52,211,153,.15);  color:#34d399; }
+        .lbl-pending { background:rgba(167,139,250,.15); color:#a78bfa; }
+        .lbl-failed  { background:rgba(248,113,113,.15); color:#f87171; }
+        .lbl-waiting { background:rgba(255,255,255,.06); color:#94a3b8; }
+        .step-remarks { font-size:.72rem; color:#94a3b8; font-style:italic; margin-top:.2rem; }
+        .step-fail-msg { font-size:.78rem; color:#f87171; font-weight:600; margin-top:.3rem; }
+
+        /* No rounds yet */
+        .no-rounds-info { font-size:.8rem; color:#94a3b8; padding:.4rem 0; }
+        .selected-banner { background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.3);
+            border-radius:.7rem; padding:.7rem 1rem; font-size:.88rem; color:#34d399; font-weight:700;
+            display:flex; align-items:center; gap:.5rem; margin-top:.5rem; }
+        .rejected-banner { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3);
+            border-radius:.7rem; padding:.7rem 1rem; font-size:.88rem; color:#f87171; font-weight:700;
+            display:flex; align-items:center; gap:.5rem; margin-top:.5rem; }
+    </style>
 </head>
 <body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
 
+<div class="page-content">
 <nav class="navbar">
-    <div class="nav-brand">🎓 Campus Placement Portal</div>
+    <div class="nav-brand">🚀 PlaCamp</div>
     <div class="nav-links">
         <a th:href="@{/student/dashboard}">Dashboard</a>
         <a th:href="@{/student/jobs}">Jobs</a>
@@ -20,55 +96,112 @@
 </nav>
 
 <div class="main-content">
-    <div class="page-header">
+    <div class="welcome-banner" style="margin-bottom:1.2rem;">
         <h2>📋 My Applications</h2>
+        <p>Track your application progress across all companies — step by step.</p>
     </div>
 
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
-    <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
 
-    <div th:if="${#lists.isEmpty(apps)}" class="empty-state">
-        <div class="empty-icon">📭</div>
-        <p>You haven't applied for any jobs yet.</p>
-        <a th:href="@{/student/jobs}" class="btn btn-primary">Browse Jobs</a>
+    <div th:if="${#lists.isEmpty(appsWithProgress)}"
+         style="text-align:center;padding:2rem;color:#94a3b8;">
+        You haven't applied to any jobs yet. <a th:href="@{/student/jobs}" style="color:#a78bfa;font-weight:700;">Browse Jobs →</a>
     </div>
 
-    <div th:if="${!#lists.isEmpty(apps)}" class="card">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    <th>#</th>
-                    <th>Job Title</th>
-                    <th>Company</th>
-                    <th>Applied On</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="app : ${apps}">
-                    <td th:text="${app.applicationId}"></td>
-                    <td><b th:text="${app.jobTitle != null ? app.jobTitle : 'Job #' + app.jobId}"></b></td>
-                    <td th:text="${app.companyName != null ? app.companyName : 'N/A'}"></td>
-                    <td th:text="${app.applyDate}"></td>
-                    <td>
-                        <span class="badge" th:classappend="${app.statusBadgeClass}"
-                              th:text="${app.status}"></span>
-                    </td>
-                    <td>
-                        <form th:if="${app.status.name() == 'APPLIED'}"
-                              th:action="@{/student/withdraw/{id}(id=${app.applicationId})}"
-                              method="post"
-                              onsubmit="return confirm('Withdraw this application?')">
-                            <button type="submit" class="btn btn-danger btn-sm">Withdraw</button>
-                        </form>
-                        <span th:unless="${app.status.name() == 'APPLIED'}" class="text-muted">—</span>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+    <!-- Each application -->
+    <div th:each="item : ${appsWithProgress}" class="app-card">
+
+        <!-- Top: Job Title + Status Badge -->
+        <div class="app-card-top">
+            <div>
+                <div class="app-job-title" th:text="${item.app.jobTitle}">Job Title</div>
+                <div class="app-company" th:text="'🏢 ' + ${item.app.companyName}">Company</div>
+                <div class="app-meta">Applied: <span th:text="${item.app.applyDate}">—</span></div>
+            </div>
+            <div>
+                <span class="badge"
+                      th:classappend="${'badge-' + item.app.statusBadgeClass}"
+                      th:text="${item.app.status}">APPLIED</span>
+            </div>
+        </div>
+
+        <!-- ── Selected Banner ── -->
+        <div th:if="${item.app.status.name() == 'SELECTED'}" class="selected-banner">
+            🎉 Congratulations! You have been SELECTED and placed at <span th:text="${item.app.companyName}">Company</span>!
+        </div>
+
+        <!-- ── Rejected Banner ── -->
+        <div th:if="${item.app.status.name() == 'REJECTED'}" class="rejected-banner">
+            ❌ Unfortunately your application was not successful at this time. Keep applying!
+        </div>
+
+        <!-- ── Step Tracker (if rounds exist) ── -->
+        <div th:unless="${#lists.isEmpty(item.roundResults)}" class="tracker-wrap">
+            <div class="tracker-title">Interview Progress</div>
+            <div th:each="rr, iter : ${item.roundResults}" class="step-row">
+                <!-- Circle + vertical line -->
+                <div class="step-node">
+                    <div class="step-circle"
+                         th:classappend="${rr.status.name() == 'PASSED'}  ? ' circle-passed'  :
+                                         (${rr.status.name() == 'PENDING'} ? ' circle-pending' :
+                                         (${rr.status.name() == 'FAILED'}  ? ' circle-failed'  : ' circle-waiting'))"
+                         th:text="${rr.roundTypeIcon ?: rr.status.icon}">○</div>
+                    <!-- Vertical connector (not for last item) -->
+                    <div th:unless="${iter.last}" class="step-vline"
+                         th:classappend="${rr.status.name() == 'PASSED'} ? ' vline-passed' :
+                                         (${rr.status.name() == 'FAILED'} ? ' vline-failed' :
+                                         (${rr.status.name() == 'PENDING'} ? ' vline-pending' : ' vline-waiting'))">
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="step-content">
+                    <span class="step-round-name" th:text="${rr.roundName}">Round Name</span>
+                    <span class="step-status-label"
+                          th:classappend="${rr.status.name() == 'PASSED'}  ? ' lbl-passed'  :
+                                          (${rr.status.name() == 'PENDING'} ? ' lbl-pending' :
+                                          (${rr.status.name() == 'FAILED'}  ? ' lbl-failed'  : ' lbl-waiting'))"
+                          th:text="${rr.status.label}">Status</span>
+
+                    <!-- Pending: you are here -->
+                    <div th:if="${rr.status.name() == 'PENDING'}"
+                         style="font-size:.75rem;color:#a78bfa;margin-top:.25rem;">
+                        ⏳ You are currently in this round. Await company decision.
+                    </div>
+
+                    <!-- Failed: failure message -->
+                    <div th:if="${rr.status.name() == 'FAILED'}" class="step-fail-msg">
+                        You did not clear this round.
+                        <span th:if="${rr.remarks != null and !rr.remarks.isEmpty()}"
+                              style="font-weight:400;color:#94a3b8;" th:text="'Feedback: ' + ${rr.remarks}">—</span>
+                    </div>
+
+                    <!-- Passed: optional remarks -->
+                    <div th:if="${rr.status.name() == 'PASSED' and rr.remarks != null and !rr.remarks.isEmpty()}"
+                         class="step-remarks" th:text="'Feedback: ' + ${rr.remarks}">—</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- No rounds yet (waiting for company to shortlist) -->
+        <div th:if="${#lists.isEmpty(item.roundResults) and item.app.status.name() == 'APPLIED'}"
+             class="no-rounds-info">
+            📬 Application submitted. Waiting for company to review and shortlist.
+        </div>
+
+        <!-- Withdraw button (only for APPLIED status) -->
+        <div th:if="${item.app.status.name() == 'APPLIED'}" style="margin-top:.8rem;">
+            <form th:action="@{'/student/withdraw/' + ${item.app.applicationId}}" method="post" style="margin:0;"
+                  onsubmit="return confirm('Withdraw this application?')">
+                <button type="submit" class="btn btn-sm" style="background:rgba(248,113,113,.15);color:#f87171;border:1px solid rgba(248,113,113,.3);font-size:.75rem;">
+                    Withdraw Application
+                </button>
+            </form>
+        </div>
+
+    </div><!-- /each app -->
 </div>
-
+</div>
 </body>
 </html>

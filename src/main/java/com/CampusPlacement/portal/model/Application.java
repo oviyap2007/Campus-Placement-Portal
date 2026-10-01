@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class Application {
 
     public enum Status {
-        APPLIED, SHORTLISTED, SELECTED, REJECTED
+        APPLIED, SHORTLISTED, IN_PROGRESS, SELECTED, REJECTED
     }
 
     @Id
@@ -70,6 +70,7 @@ public class Application {
         if (status == null) return "badge-applied";
         return switch (status) {
             case SHORTLISTED -> "badge-shortlisted";
+            case IN_PROGRESS -> "badge-progress";
             case SELECTED    -> "badge-selected";
             case REJECTED    -> "badge-rejected";
             default          -> "badge-applied";

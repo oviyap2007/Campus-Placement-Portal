@@ -2,14 +2,165 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Student Dashboard</title>
+    <title>PlaCamp — Student Dashboard</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* ── Enhanced Student Dashboard ──────────────────────── */
+
+        /* Top row: 3 stat cards */
+        .stats-grid-3 {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card-s {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 1rem; padding: 1rem 1.2rem;
+            backdrop-filter: blur(12px);
+            text-decoration: none; display: block;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .stat-card-s:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(139,92,246,.3); }
+        .stat-card-s .sc-icon { font-size: 1.6rem; margin-bottom: 0.4rem; }
+        .stat-card-s .sc-val  { font-size: 1.9rem; font-weight: 800;
+            background: linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card-s .sc-lbl  { font-size: 0.75rem; color: #94a3b8; margin-top: 0.2rem; }
+        .stat-card-s .sc-link { font-size: 0.68rem; color: #a78bfa; font-weight: 700; margin-top: 0.5rem; letter-spacing:.5px; }
+
+        /* Main 2-column grid */
+        .dash-main {
+            display: grid; grid-template-columns: 1fr 1.4fr; gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        /* Left column: Career Match + Domain */
+        .dash-left { display: flex; flex-direction: column; gap: 1rem; }
+        /* Right column: Strengths + Paths + Next Steps */
+        .dash-right { display: flex; flex-direction: column; gap: 1rem; }
+
+        /* Widget base */
+        .wcard {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(167,139,250,0.15);
+            border-radius: 1rem; padding: 1.2rem;
+            backdrop-filter: blur(10px);
+        }
+        .wcard-title {
+            font-size: 0.85rem; font-weight: 700; color: #e2e8f0;
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        .wcard-title small { color: #94a3b8; font-weight: 400; font-size: 0.72rem; }
+
+        /* ── Career Match Ring ─────────────────────────────── */
+        .match-ring-wrap {
+            display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+        }
+        .ring-svg-wrap { position: relative; width: 130px; height: 130px; }
+        .ring-svg { transform: rotate(-90deg); }
+        .ring-bg   { fill: none; stroke: rgba(167,139,250,0.15); stroke-width: 10; }
+        .ring-fill { fill: none; stroke-width: 10; stroke-linecap: round;
+                     stroke: url(#ringGrad);
+                     stroke-dasharray: 345; stroke-dashoffset: 345;
+                     transition: stroke-dashoffset 1.5s ease; }
+        .ring-label {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%,-50%); text-align: center;
+        }
+        .ring-pct  { font-size: 1.6rem; font-weight: 900;
+            background: linear-gradient(135deg,#a78bfa,#67e8f9);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .ring-tag  { font-size: 0.62rem; color: #94a3b8; }
+        .match-label { font-size: 0.85rem; font-weight: 700; color: #a78bfa; }
+        .match-sub   { font-size: 0.72rem; color: #94a3b8; text-align: center; }
+
+        /* ── Domain Breakdown ──────────────────────────────── */
+        .domain-row {
+            display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem;
+        }
+        .domain-name { font-size: 0.78rem; color: #e2e8f0; min-width: 100px; }
+        .domain-bar-wrap { flex: 1; height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; }
+        .domain-bar { height: 100%; border-radius: 3px; background: linear-gradient(90deg,#a78bfa,#67e8f9); transition: width 1s; }
+        .domain-pct { font-size: 0.72rem; color: #94a3b8; min-width: 30px; text-align: right; }
+
+        /* ── Strengths Bars ────────────────────────────────── */
+        .strength-row { margin-bottom: 0.9rem; }
+        .strength-top { display: flex; justify-content: space-between; margin-bottom: 0.3rem; }
+        .strength-lbl { font-size: 0.78rem; color: #e2e8f0; }
+        .strength-pct { font-size: 0.78rem; color: #a78bfa; font-weight: 700; }
+        .strength-bar-wrap { height: 7px; background: rgba(255,255,255,0.08); border-radius: 4px; }
+        .strength-bar { height: 100%; border-radius: 4px; transition: width 1.2s ease; }
+        .bar-skills { background: linear-gradient(90deg,#a78bfa,#818cf8); }
+        .bar-cgpa   { background: linear-gradient(90deg,#67e8f9,#38bdf8); }
+        .bar-active { background: linear-gradient(90deg,#34d399,#10b981); }
+        .bar-profile{ background: linear-gradient(90deg,#f9a8d4,#f472b6); }
+
+        /* ── Recommended Paths ─────────────────────────────── */
+        .path-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.65rem 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .path-row:last-child { border-bottom: none; }
+        .path-num  { font-size: 0.72rem; color: #a78bfa; font-weight: 800; min-width: 1.4rem; }
+        .path-info { flex: 1; }
+        .path-title { font-size: 0.83rem; font-weight: 700; color: #e2e8f0; }
+        .path-co    { font-size: 0.7rem; color: #94a3b8; }
+        .path-score { font-size: 0.75rem; font-weight: 700; }
+        .score-excellent { color: #34d399; }
+        .score-good      { color: #a78bfa; }
+        .score-moderate  { color: #fbbf24; }
+        .score-low       { color: #f87171; }
+        .no-paths { font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 0.5rem 0; }
+
+        /* ── Next Steps ────────────────────────────────────── */
+        .step-row {
+            display: flex; align-items: center; gap: 0.7rem;
+            padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .step-row:last-child { border-bottom: none; }
+        .step-check {
+            width: 22px; height: 22px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.75rem; flex-shrink: 0;
+        }
+        .step-done   { background: rgba(52,211,153,.2); color: #34d399; border: 1.5px solid #34d399; }
+        .step-undone { background: rgba(255,255,255,.06); color: #94a3b8; border: 1.5px solid rgba(255,255,255,.15); }
+        .step-label a { font-size: 0.8rem; text-decoration: none; }
+        .step-label a.done-lbl   { color: #94a3b8; text-decoration: line-through; }
+        .step-label a.undone-lbl { color: #e2e8f0; }
+        .step-label a.undone-lbl:hover { color: #a78bfa; }
+
+        /* Responsive */
+        @media(max-width:900px){
+            .stats-grid-3 { grid-template-columns: 1fr 1fr; }
+            .dash-main    { grid-template-columns: 1fr; }
+        }
+        @media(max-width:600px){ .stats-grid-3 { grid-template-columns: 1fr; } }
+    </style>
 </head>
 <body>
 
+<!-- Aurora Background -->
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
+
+<div class="page-content">
+
 <!-- NAVBAR -->
 <nav class="navbar">
-    <div class="nav-brand">🎓 Campus Placement Portal</div>
+    <div class="nav-brand">🚀 PlaCamp</div>
     <div class="nav-links">
         <a th:href="@{/student/dashboard}" class="active">Dashboard</a>
         <a th:href="@{/student/jobs}">Jobs</a>
@@ -21,63 +172,196 @@
 </nav>
 
 <div class="main-content">
+
     <!-- Welcome Banner -->
-    <div class="welcome-banner">
-        <div>
-            <h2>Welcome back, <span th:text="${student.name}">Student</span>! 👋</h2>
-            <p>Department: <b th:text="${student.department}"></b> &nbsp;|&nbsp;
-               CGPA: <b th:text="${student.cgpa}"></b> &nbsp;|&nbsp;
-               Status: <b th:text="${student.placed ? '✅ Placed' : '🔍 Seeking'}"></b></p>
-        </div>
+    <div class="welcome-banner" style="margin-bottom:1.2rem;">
+        <h2>Welcome back, <span th:text="${student.name}">Student</span>! 👋</h2>
+        <p>
+            <b th:text="${student.department}">Dept</b> &nbsp;|&nbsp;
+            CGPA <b th:text="${student.cgpa}">0.0</b> &nbsp;|&nbsp;
+            <b th:text="${student.placed ? '✅ Placed' : '🔍 Seeking Opportunities'}">Status</b>
+        </p>
     </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">💼</div>
-            <div class="stat-value" th:text="${eligibleJobs}">0</div>
-            <div class="stat-label">Eligible Jobs</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">📋</div>
-            <div class="stat-value" th:text="${myApps}">0</div>
-            <div class="stat-label">My Applications</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">🤖</div>
-            <div class="stat-value">AI</div>
-            <div class="stat-label">Recommendations</div>
-        </div>
-    </div>
-
-    <!-- Quick Actions -->
-    <div class="section-title">Quick Actions</div>
-    <div class="quick-actions">
-        <a th:href="@{/student/jobs}" class="action-card">
-            <div class="action-icon">🔍</div>
-            <div class="action-label">Browse Jobs</div>
-        </a>
-        <a th:href="@{/student/applications}" class="action-card">
-            <div class="action-icon">📄</div>
-            <div class="action-label">My Applications</div>
-        </a>
-        <a th:href="@{/student/recommendations}" class="action-card">
-            <div class="action-icon">✨</div>
-            <div class="action-label">AI Job Matches</div>
-        </a>
-        <a th:href="@{/student/profile}" class="action-card">
-            <div class="action-icon">👤</div>
-            <div class="action-label">Edit Profile</div>
-        </a>
-    </div>
-
-    <!-- Skills Notice -->
+    <!-- Skills warning -->
     <div th:if="${student.skills == null or student.skills.trim().isEmpty()}"
-         class="alert alert-warning">
-        ⚠️ Your skills are not set! <a th:href="@{/student/profile}">Update your profile</a>
+         class="alert alert-warning" style="margin-bottom:1rem;">
+        ⚠️ Your skills are not set!
+        <a th:href="@{/student/profile}" style="color:#fcd34d;font-weight:700;">Update your profile</a>
         to get better AI job recommendations.
     </div>
-</div>
 
+    <!-- ── Top 3 Stats ──────────────────────────────────────────────────── -->
+    <div class="stats-grid-3">
+        <a th:href="@{/student/jobs}" class="stat-card-s">
+            <div class="sc-icon">💼</div>
+            <div class="sc-val" th:text="${eligibleJobs}">0</div>
+            <div class="sc-lbl">Eligible Jobs</div>
+            <div class="sc-link">Browse Jobs →</div>
+        </a>
+        <a th:href="@{/student/applications}" class="stat-card-s">
+            <div class="sc-icon">📋</div>
+            <div class="sc-val" th:text="${myApps}">0</div>
+            <div class="sc-lbl">My Applications</div>
+            <div class="sc-link">View All →</div>
+        </a>
+        <a th:href="@{/student/recommendations}" class="stat-card-s">
+            <div class="sc-icon">🤖</div>
+            <div class="sc-val" th:text="${careerMatchScore} + '%'">0%</div>
+            <div class="sc-lbl">AI Career Match</div>
+            <div class="sc-link">View Matches →</div>
+        </a>
+    </div>
+
+    <!-- ── Main 2-Column Grid ──────────────────────────────────────────── -->
+    <div class="dash-main">
+
+        <!-- LEFT: Career Match Ring + Domain Breakdown -->
+        <div class="dash-left">
+
+            <!-- Career Match Ring -->
+            <div class="wcard">
+                <div class="wcard-title">✨ Your Career Match <small>AI-powered score</small></div>
+                <div class="match-ring-wrap">
+                    <div class="ring-svg-wrap">
+                        <svg class="ring-svg" width="130" height="130" viewBox="0 0 130 130">
+                            <defs>
+                                <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%"   stop-color="#a78bfa"/>
+                                    <stop offset="100%" stop-color="#67e8f9"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="ring-bg"   cx="65" cy="65" r="55"/>
+                            <circle class="ring-fill" cx="65" cy="65" r="55"
+                                    th:id="'ringFill'"
+                                    th:attr="data-score=${careerMatchScore}"/>
+                        </svg>
+                        <div class="ring-label">
+                            <div class="ring-pct" th:text="${careerMatchScore} + '%'">0%</div>
+                            <div class="ring-tag">match</div>
+                        </div>
+                    </div>
+                    <div class="match-label" th:text="${careerMatchLabel}">Building Profile</div>
+                    <div class="match-sub">Based on your skills, CGPA &amp; eligible roles</div>
+                </div>
+            </div>
+
+            <!-- Domain Breakdown -->
+            <div class="wcard">
+                <div class="wcard-title">🗺️ Interest Domain Map <small>Eligible job areas</small></div>
+                <div th:if="${#lists.isEmpty(domainBreakdown)}"
+                     style="font-size:0.8rem;color:#94a3b8;text-align:center;padding:0.5rem 0;">
+                    No domain data — add skills &amp; check back!
+                </div>
+                <div th:each="d : ${domainBreakdown}" class="domain-row">
+                    <span class="domain-name" th:text="${d.domain}">Domain</span>
+                    <div class="domain-bar-wrap">
+                        <div class="domain-bar" th:style="'width:' + ${d.pct} + '%'" th:attr="data-pct=${d.pct}"></div>
+                    </div>
+                    <span class="domain-pct" th:text="${d.pct} + '%'">0%</span>
+                </div>
+            </div>
+        </div><!-- /dash-left -->
+
+        <!-- RIGHT: Strengths + Paths + Next Steps -->
+        <div class="dash-right">
+
+            <!-- Strengths Analysis -->
+            <div class="wcard">
+                <div class="wcard-title">📊 Strengths Analysis <small>Your career readiness</small></div>
+
+                <div class="strength-row">
+                    <div class="strength-top">
+                        <span class="strength-lbl">🛠 Skills Match</span>
+                        <span class="strength-pct" th:text="${skillMatchScore} + '%'">0%</span>
+                    </div>
+                    <div class="strength-bar-wrap">
+                        <div class="strength-bar bar-skills" th:style="'width:' + ${skillMatchScore} + '%'"></div>
+                    </div>
+                </div>
+
+                <div class="strength-row">
+                    <div class="strength-top">
+                        <span class="strength-lbl">🎓 CGPA Score</span>
+                        <span class="strength-pct" th:text="${cgpaScore} + '%'">0%</span>
+                    </div>
+                    <div class="strength-bar-wrap">
+                        <div class="strength-bar bar-cgpa" th:style="'width:' + ${cgpaScore} + '%'"></div>
+                    </div>
+                </div>
+
+                <div class="strength-row">
+                    <div class="strength-top">
+                        <span class="strength-lbl">📋 Application Activity</span>
+                        <span class="strength-pct" th:text="${activityScore} + '%'">0%</span>
+                    </div>
+                    <div class="strength-bar-wrap">
+                        <div class="strength-bar bar-active" th:style="'width:' + ${activityScore} + '%'"></div>
+                    </div>
+                </div>
+
+                <div class="strength-row" style="margin-bottom:0;">
+                    <div class="strength-top">
+                        <span class="strength-lbl">👤 Profile Completeness</span>
+                        <span class="strength-pct" th:text="${completeness} + '%'">0%</span>
+                    </div>
+                    <div class="strength-bar-wrap">
+                        <div class="strength-bar bar-profile" th:style="'width:' + ${completeness} + '%'"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommended Career Paths -->
+            <div class="wcard">
+                <div class="wcard-title">🎯 Recommended Career Paths <small>AI top matches</small></div>
+                <div th:if="${#lists.isEmpty(topPaths)}" class="no-paths">
+                    No recommendations yet — <a th:href="@{/student/profile}" style="color:#a78bfa;">add your skills</a> to get AI matches!
+                </div>
+                <div th:each="path, iter : ${topPaths}" class="path-row">
+                    <span class="path-num" th:text="${iter.index + 1}">1</span>
+                    <div class="path-info">
+                        <div class="path-title" th:text="${path.title}">Job Title</div>
+                        <div class="path-co"    th:text="${path.company}">Company</div>
+                    </div>
+                    <span class="path-score"
+                          th:classappend="${path.badge}"
+                          th:text="${path.score} + '% Match'">0% Match</span>
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="wcard">
+                <div class="wcard-title">✅ Next Steps <small>Your action checklist</small></div>
+                <div th:each="step : ${nextSteps}" class="step-row">
+                    <div class="step-check"
+                         th:classappend="${step.done} ? 'step-done' : 'step-undone'">
+                        <span th:text="${step.done} ? '✓' : '○'">○</span>
+                    </div>
+                    <div class="step-label">
+                        <a th:href="${step.link}"
+                           th:classappend="${step.done} ? 'done-lbl' : 'undone-lbl'"
+                           th:text="${step.label}">Step</a>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- /dash-right -->
+    </div><!-- /dash-main -->
+
+</div><!-- /main-content -->
+</div><!-- /page-content -->
+
+<script>
+// Animate career match ring on load
+document.addEventListener('DOMContentLoaded', function() {
+    const ring = document.getElementById('ringFill');
+    if (ring) {
+        const score = parseInt(ring.getAttribute('data-score')) || 0;
+        const circumference = 2 * Math.PI * 55; // r=55 → 345.6
+        const offset = circumference - (score / 100) * circumference;
+        setTimeout(() => { ring.style.strokeDashoffset = offset; }, 200);
+    }
+});
+</script>
 </body>
 </html>

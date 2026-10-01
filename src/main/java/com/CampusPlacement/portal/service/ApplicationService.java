@@ -81,4 +81,31 @@ public class ApplicationService {
     }
 
     public long countTotal() { return appRepo.count(); }
+
+    public long countByJob(int jobId) { return appRepo.findByJobId(jobId).size(); }
+
+    public List<Application> getByJob(int jobId) {
+        List<Application> apps = appRepo.findByJobId(jobId);
+        enrich(apps);
+        return apps;
+    }
+
+    public List<Application> getByJobAndStatus(int jobId, Status status) {
+        return appRepo.findByJobId(jobId).stream()
+            .filter(a -> a.getStatus() == status)
+            .peek(a -> enrich(List.of(a)))
+            .collect(java.util.stream.Collectors.toList());
+    }
+
+    public java.util.Optional<Application> findById(int applicationId) {
+        java.util.Optional<Application> opt = appRepo.findById(applicationId);
+        opt.ifPresent(a -> enrich(List.of(a)));
+        return opt;
+    }
+
+    public List<Application> getByStatus(Status status) {
+        List<Application> apps = appRepo.findByStatus(status);
+        enrich(apps);
+        return apps;
+    }
 }

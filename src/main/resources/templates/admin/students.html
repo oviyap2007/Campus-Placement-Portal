@@ -2,10 +2,28 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Manage Students</title>
+    <title>Manage Students — PlaCamp Admin</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+<!-- PlaCamp Aurora Background -->
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
+
+<div class="page-content">
 
 <nav class="navbar">
     <div class="nav-brand">🛡 Admin Panel</div>
@@ -21,15 +39,24 @@
 </nav>
 
 <div class="main-content">
-    <div class="page-header">
-        <h2>🎓 Student Management</h2>
+
+    <!-- Page header — dynamic title based on filter -->
+    <div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem;">
+        <h2 th:text="${pageTitle != null ? pageTitle : '🎓 Student Management'}">🎓 Student Management</h2>
+        <!-- Back link when filtered -->
+        <a th:if="${filter != null}" th:href="@{/admin/students}"
+           style="font-size:.82rem;color:#a78bfa;text-decoration:none;font-weight:600;
+                  background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);
+                  padding:.35rem .9rem;border-radius:.5rem;">
+            ← Show All Students
+        </a>
     </div>
 
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
     <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
 
-    <!-- Register Student Form -->
-    <div class="card collapsible-card">
+    <!-- Register Student Form — hide when filtering placed students -->
+    <div class="card collapsible-card" th:unless="${'placed' == filter}">
         <h3>➕ Register New Student</h3>
         <form th:action="@{/admin/students/add}" method="post" class="form-grid">
             <div class="form-group"><label>Full Name</label><input type="text" name="name" required></div>
@@ -56,11 +83,16 @@
 
     <!-- Students Table -->
     <div class="card">
-        <h3>All Students</h3>
-        <div th:if="${#lists.isEmpty(students)}" class="empty-state"><p>No students registered yet.</p></div>
-        <table th:if="${!#lists.isEmpty(students)}" class="data-table">
+        <h3 th:text="${pageTitle != null ? pageTitle : 'All Students'}">All Students</h3>
+        <div th:if="${#lists.isEmpty(students)}" class="empty-state">
+            <p th:text="${'placed' == filter ? '🎉 No placed students yet.' : 'No students registered yet.'}">No students registered yet.</p>
+        </div>
+        <table th:unless="${#lists.isEmpty(students)}" class="data-table">
             <thead>
-                <tr><th>ID</th><th>Name</th><th>Dept</th><th>CGPA</th><th>Skills</th><th>Status</th><th>Action</th></tr>
+                <tr>
+                    <th>ID</th><th>Name</th><th>Dept</th><th>CGPA</th>
+                    <th>Skills</th><th>Status</th><th>Action</th>
+                </tr>
             </thead>
             <tbody>
                 <tr th:each="s : ${students}">
@@ -69,8 +101,10 @@
                     <td th:text="${s.department}"></td>
                     <td th:text="${s.cgpa}"></td>
                     <td><span th:text="${s.skills != null and !s.skills.isEmpty() ? s.skills : '—'}" class="skills-tag"></span></td>
-                    <td><span th:text="${s.placed ? 'Placed' : 'Seeking'}"
-                              th:classappend="${s.placed ? 'badge badge-selected' : 'badge badge-applied'}"></span></td>
+                    <td>
+                        <span th:text="${s.placed ? 'Placed ✅' : 'Seeking'}"
+                              th:classappend="${s.placed ? 'badge badge-selected' : 'badge badge-applied'}"></span>
+                    </td>
                     <td>
                         <form th:action="@{/admin/students/delete/{id}(id=${s.studentId})}" method="post"
                               onsubmit="return confirm('Delete this student?')">
@@ -81,7 +115,8 @@
             </tbody>
         </table>
     </div>
-</div>
 
+</div><!-- /main-content -->
+</div><!-- /page-content -->
 </body>
 </html>

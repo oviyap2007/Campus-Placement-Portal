@@ -1,8 +1,63 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Manage Companies</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"></head>
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Companies — PlaCamp Admin</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* ── Inline account form inside table ── */
+        .acc-form { display:none; }
+        .acc-form.open { display:table-row; }
+        .acc-inline { display:flex; gap:.5rem; align-items:center; padding:.6rem .8rem;
+            background:rgba(167,139,250,.06); border-radius:.5rem; flex-wrap:wrap; }
+        .acc-inline input {
+            background:rgba(255,255,255,.07); border:1px solid rgba(167,139,250,.25);
+            border-radius:.5rem; padding:.45rem .7rem; color:#e2e8f0;
+            font-size:.8rem; width:140px;
+        }
+        .acc-inline input::placeholder { color:#475569; }
+        .btn-create-acc { background:rgba(52,211,153,.2); color:#34d399;
+            border:1px solid rgba(52,211,153,.35); border-radius:.4rem;
+            padding:.4rem .8rem; font-size:.75rem; font-weight:700; cursor:pointer; }
+        .btn-create-acc:hover { background:rgba(52,211,153,.35); }
+        .btn-show-acc { background:rgba(167,139,250,.15); color:#a78bfa;
+            border:1px solid rgba(167,139,250,.3); border-radius:.4rem;
+            padding:.35rem .7rem; font-size:.72rem; font-weight:700; cursor:pointer; }
+        .btn-show-acc:hover { background:rgba(167,139,250,.3); }
+        .has-account-badge { font-size:.68rem; background:rgba(52,211,153,.15);
+            color:#34d399; border:1px solid rgba(52,211,153,.25);
+            border-radius:999px; padding:.15rem .55rem; font-weight:700; }
+
+        /* Checkbox toggle */
+        .toggle-wrap { display:flex; align-items:center; gap:.5rem; margin-top:.7rem;
+            padding:.6rem .8rem; background:rgba(167,139,250,.06);
+            border:1px dashed rgba(167,139,250,.25); border-radius:.6rem; cursor:pointer; }
+        .toggle-wrap input[type=checkbox] { width:16px; height:16px; cursor:pointer; }
+        .toggle-label { font-size:.78rem; color:#a78bfa; font-weight:600; }
+        .account-fields { display:none; margin-top:.7rem; }
+        .account-fields.show { display:block; }
+        .account-fields .form-row { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+        .account-fields .form-group { margin-bottom:.5rem; }
+    </style>
+</head>
 <body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
+
+<div class="page-content">
 <nav class="navbar">
     <div class="nav-brand">🛡 Admin Panel</div>
     <div class="nav-links">
@@ -15,46 +70,209 @@
         <a th:href="@{/logout}" class="btn-logout">Logout</a>
     </div>
 </nav>
+
 <div class="main-content">
     <div class="page-header"><h2>🏢 Company Management</h2></div>
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
     <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
 
-    <div class="card">
-        <h3>➕ Add New Company</h3>
-        <form th:action="@{/admin/companies/add}" method="post" class="form-grid">
-            <div class="form-group"><label>Company Name</label><input type="text" name="name" required></div>
-            <div class="form-group"><label>Industry</label><input type="text" name="industry" placeholder="e.g. IT Services"></div>
-            <div class="form-group"><label>Location</label><input type="text" name="location" placeholder="e.g. Chennai"></div>
-            <div class="form-group"><label>Contact Email</label><input type="email" name="contactEmail"></div>
-            <div class="form-group"><label>Contact Phone</label><input type="text" name="contactPhone"></div>
-            <div class="form-group form-full"><button type="submit" class="btn btn-primary">Add Company</button></div>
-        </form>
-    </div>
-
-    <div class="card">
-        <h3>All Companies</h3>
-        <div th:if="${#lists.isEmpty(companies)}" class="empty-state"><p>No companies added yet.</p></div>
-        <table th:if="${!#lists.isEmpty(companies)}" class="data-table">
-            <thead><tr><th>ID</th><th>Name</th><th>Industry</th><th>Location</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
+    <!-- ══════════════════════════════════════════════════════
+         1. PENDING COMPANY APPROVALS
+    ══════════════════════════════════════════════════════ -->
+    <div class="card" style="border:1.5px solid rgba(251,191,36,.35);margin-bottom:1rem;">
+        <h3 style="color:#fbbf24;display:flex;align-items:center;gap:.5rem;">
+            ⏳ Pending Company Approvals
+            <span th:if="${!#lists.isEmpty(pendingAccounts)}"
+                  style="background:rgba(248,113,113,.2);color:#f87171;padding:.1rem .6rem;
+                         border-radius:999px;font-size:.7rem;font-weight:800;"
+                  th:text="${#lists.size(pendingAccounts)}">0</span>
+        </h3>
+        <p th:if="${#lists.isEmpty(pendingAccounts)}"
+           style="font-size:.85rem;color:#94a3b8;">✅ No pending approvals right now.</p>
+        <table th:unless="${#lists.isEmpty(pendingAccounts)}" class="data-table">
+            <thead><tr><th>Company</th><th>Username</th><th>Industry</th><th>Location</th><th>Registered</th><th>Actions</th></tr></thead>
             <tbody>
-                <tr th:each="c : ${companies}">
-                    <td th:text="${c.companyId}"></td>
-                    <td><b th:text="${c.name}"></b></td>
-                    <td th:text="${c.industry}"></td>
-                    <td th:text="${c.location}"></td>
-                    <td th:text="${c.contactEmail}"></td>
-                    <td th:text="${c.contactPhone}"></td>
+                <tr th:each="acc : ${pendingAccounts}">
+                    <td><b th:text="${acc.companyName}">—</b></td>
+                    <td><code style="background:rgba(255,255,255,.06);padding:.1rem .4rem;border-radius:.3rem;" th:text="${acc.username}">—</code></td>
+                    <td th:text="${acc.industry}">—</td>
+                    <td th:text="${acc.location}">—</td>
+                    <td style="font-size:.75rem;color:#94a3b8;" th:text="${#temporals.format(acc.registeredAt,'dd MMM yyyy')}">—</td>
                     <td>
-                        <form th:action="@{/admin/companies/delete/{id}(id=${c.companyId})}" method="post"
-                              onsubmit="return confirm('Delete this company?')">
-                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                        </form>
+                        <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                            <form th:action="@{'/admin/companies/approve/' + ${acc.accountId}}" method="post" style="margin:0;">
+                                <button type="submit" class="btn btn-sm btn-primary">✅ Approve</button>
+                            </form>
+                            <form th:action="@{'/admin/companies/reject/' + ${acc.accountId}}" method="post" style="margin:0;"
+                                  onsubmit="return confirm('Reject this company account?')">
+                                <button type="submit" class="btn btn-sm btn-danger">❌ Reject</button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
             </tbody>
         </table>
     </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         2. APPROVED COMPANY ACCOUNTS
+    ══════════════════════════════════════════════════════ -->
+    <div class="card" style="margin-bottom:1rem;">
+        <h3 style="color:#34d399;">✅ Active Company Accounts</h3>
+        <p th:if="${#lists.isEmpty(approvedAccounts)}" style="font-size:.85rem;color:#94a3b8;">
+            No approved accounts yet.
+        </p>
+        <table th:unless="${#lists.isEmpty(approvedAccounts)}" class="data-table">
+            <thead><tr><th>Company</th><th>Username</th><th>Industry</th><th>Location</th><th>Status</th></tr></thead>
+            <tbody>
+                <tr th:each="acc : ${approvedAccounts}">
+                    <td><b th:text="${acc.companyName}">—</b></td>
+                    <td><code style="background:rgba(255,255,255,.06);padding:.1rem .4rem;border-radius:.3rem;" th:text="${acc.username}">—</code></td>
+                    <td th:text="${acc.industry}">—</td>
+                    <td th:text="${acc.location}">—</td>
+                    <td><span class="badge badge-selected">✅ Can Login</span></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         3. ADD NEW COMPANY (+ optional auto-approved account)
+    ══════════════════════════════════════════════════════ -->
+    <div class="card" style="margin-bottom:1rem;">
+        <h3>➕ Add Company
+            <small style="font-size:.75rem;color:#94a3b8;font-weight:400;margin-left:.5rem;">
+                (For big/known companies — admin can create their portal account directly)
+            </small>
+        </h3>
+        <form th:action="@{/admin/companies/add}" method="post" class="form-grid">
+            <div class="form-group"><label>Company Name *</label><input type="text" name="name" required placeholder="e.g. Google India"></div>
+            <div class="form-group"><label>Industry</label><input type="text" name="industry" placeholder="e.g. Technology"></div>
+            <div class="form-group"><label>Location</label><input type="text" name="location" placeholder="e.g. Bangalore"></div>
+            <div class="form-group"><label>Contact Email</label><input type="email" name="contactEmail" placeholder="hr@company.com"></div>
+            <div class="form-group"><label>Contact Phone</label><input type="text" name="contactPhone" placeholder="044-XXXXXXXX"></div>
+
+            <!-- Optional: pre-create account (still needs admin approval) -->
+            <div class="form-full">
+                <div class="toggle-wrap" onclick="toggleAccountFields(this)">
+                    <input type="checkbox" name="createAccount" value="true" id="createAccountCheck" onclick="event.stopPropagation();toggleAccountFields(document.querySelector('.toggle-wrap'))">
+                    <label for="createAccountCheck" class="toggle-label" onclick="event.stopPropagation()">
+                        🔑 Also set portal credentials for this company (account will still need your approval)
+                    </label>
+                </div>
+                <div class="account-fields" id="accountFields">
+                    <div class="account-fields-row form-row" style="display:grid;grid-template-columns:1fr 1fr;gap:.7rem;">
+                        <div class="form-group">
+                            <label>Portal Username</label>
+                            <input type="text" name="username" placeholder="e.g. google_hr" id="adminUsername">
+                        </div>
+                        <div class="form-group">
+                            <label>Portal Password</label>
+                            <input type="password" name="password" placeholder="Set password" id="adminPassword">
+                        </div>
+                    </div>
+                    <div style="font-size:.75rem;color:#fbbf24;padding:.3rem 0;">
+                        ⏳ Account will appear in <strong>Pending Approvals</strong> — you must approve it before the company can login.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group form-full">
+                <button type="submit" class="btn btn-primary">Add Company</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════════
+         4. ALL COMPANIES TABLE (with Create Account option)
+    ══════════════════════════════════════════════════════ -->
+    <div class="card">
+        <h3>📋 All Registered Companies</h3>
+        <div th:if="${#lists.isEmpty(companies)}" class="empty-state"><p>No companies added yet.</p></div>
+        <table th:unless="${#lists.isEmpty(companies)}" class="data-table" id="companiesTable">
+            <thead>
+                <tr>
+                    <th>Company</th>
+                    <th>Industry</th>
+                    <th>Location</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Portal Account</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <th:block th:each="c : ${companies}">
+                    <tr th:id="'row_' + ${c.companyId}">
+                        <td><b th:text="${c.name}">—</b></td>
+                        <td th:text="${c.industry}">—</td>
+                        <td th:text="${c.location}">—</td>
+                        <td style="font-size:.78rem;" th:text="${c.contactEmail}">—</td>
+                        <td style="font-size:.78rem;" th:text="${c.contactPhone}">—</td>
+                        <td>
+                            <!-- Has account -->
+                            <span th:if="${companyIdsWithAccount.contains(c.companyId)}"
+                                  class="has-account-badge">✅ Account Exists</span>
+                            <!-- No account — show "Create Account" button -->
+                            <button th:unless="${companyIdsWithAccount.contains(c.companyId)}"
+                                    class="btn-show-acc"
+                                    th:onclick="'toggleAccForm(' + ${c.companyId} + ')'">
+                                🔑 Create Account
+                            </button>
+                        </td>
+                        <td>
+                            <form th:action="@{/admin/companies/delete/{id}(id=${c.companyId})}" method="post" style="margin:0;"
+                                  onsubmit="return confirm('Delete company and all its data?')">
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <!-- Inline account creation row (hidden by default) -->
+                    <tr th:id="'accrow_' + ${c.companyId}" class="acc-form"
+                        th:unless="${companyIdsWithAccount.contains(c.companyId)}">
+                        <td colspan="7" style="padding:.3rem .8rem;">
+                            <form th:action="@{'/admin/companies/' + ${c.companyId} + '/create-account'}" method="post">
+                                <div class="acc-inline">
+                                    <span style="font-size:.78rem;color:#a78bfa;font-weight:700;">🔑 Create Portal Account for <b th:text="${c.name}">Company</b>:</span>
+                                    <input type="text"     name="username" placeholder="Username" required style="width:130px;">
+                                    <input type="password" name="password" placeholder="Password" required style="width:130px;" minlength="6">
+                                    <button type="submit" class="btn-create-acc">✅ Create &amp; Approve</button>
+                                    <button type="button" class="btn btn-sm"
+                                            th:onclick="'toggleAccForm(' + ${c.companyId} + ')'"
+                                            style="font-size:.72rem;padding:.35rem .6rem;">Cancel</button>
+                                </div>
+                            </form>
+                        </td>
+                    </tr>
+                </th:block>
+            </tbody>
+        </table>
+    </div>
+
 </div>
+</div>
+
+<script>
+function toggleAccForm(companyId) {
+    const row = document.getElementById('accrow_' + companyId);
+    if (row) row.classList.toggle('open');
+}
+function toggleAccountFields(wrap) {
+    const checkbox = document.getElementById('createAccountCheck');
+    checkbox.checked = !checkbox.checked;
+    const fields = document.getElementById('accountFields');
+    fields.classList.toggle('show', checkbox.checked);
+    // toggle required
+    document.getElementById('adminUsername').required = checkbox.checked;
+    document.getElementById('adminPassword').required = checkbox.checked;
+}
+// Checkbox native click also triggers toggle
+document.getElementById('createAccountCheck').addEventListener('change', function() {
+    const fields = document.getElementById('accountFields');
+    fields.classList.toggle('show', this.checked);
+    document.getElementById('adminUsername').required = this.checked;
+    document.getElementById('adminPassword').required = this.checked;
+});
+</script>
 </body>
 </html>

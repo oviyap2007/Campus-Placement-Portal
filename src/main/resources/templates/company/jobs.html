@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Company Jobs — PlaCamp</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .job-meta { font-size:.72rem; color:#94a3b8; margin-top:.2rem; }
+        .round-count { font-size:.72rem; background:rgba(167,139,250,.15); color:#a78bfa;
+            border-radius:999px; padding:.15rem .5rem; font-weight:700; }
+        .add-round-btn { background:rgba(167,139,250,.15); border:1px dashed rgba(167,139,250,.4);
+            color:#a78bfa; border-radius:.5rem; padding:.5rem 1rem; cursor:pointer;
+            font-size:.8rem; font-weight:600; transition:all .2s; margin-top:.5rem; }
+        .add-round-btn:hover { background:rgba(167,139,250,.25); }
+        .round-row { display:grid; grid-template-columns:1fr 1fr 36px; gap:.5rem; margin-bottom:.5rem; align-items:center; }
+        .round-row input, .round-row select {
+            background:rgba(255,255,255,.06); border:1px solid rgba(167,139,250,.2);
+            border-radius:.5rem; padding:.55rem .8rem; color:#e2e8f0; font-size:.82rem; }
+        .round-row select option { background:#1e1b4b; }
+        .round-row .del-round { background:rgba(248,113,113,.15); border:1px solid rgba(248,113,113,.3);
+            color:#f87171; border-radius:.4rem; padding:.4rem .6rem; cursor:pointer; font-size:.9rem;
+            transition:all .2s; }
+        .round-row .del-round:hover { background:rgba(248,113,113,.3); }
+        .form-section { background:rgba(255,255,255,.04); border:1px solid rgba(167,139,250,.15);
+            border-radius:1rem; padding:1.5rem; margin-bottom:1.5rem; }
+        .form-section h3 { font-size:.9rem; color:#a78bfa; font-weight:700; margin-bottom:1rem; text-transform:uppercase; letter-spacing:.5px; }
+        .form-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+        .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+        .form-group { margin-bottom:.8rem; }
+        .form-group label { display:block; font-size:.75rem; color:#94a3b8; margin-bottom:.35rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(167,139,250,.2);
+            border-radius:.6rem; padding:.7rem .9rem; color:#e2e8f0; font-size:.88rem; }
+        .form-group select option { background:#1e1b4b; }
+        .no-rounds-note { font-size:.78rem; color:#94a3b8; padding:.5rem 0; }
+        .job-card { background:rgba(255,255,255,.05); border:1px solid rgba(167,139,250,.15);
+            border-radius:.9rem; padding:1.1rem 1.3rem; margin-bottom:1rem; }
+        .job-card-top { display:flex; justify-content:space-between; align-items:center; }
+        .job-card-title { font-size:1rem; font-weight:700; color:#e2e8f0; }
+        .job-card-actions { display:flex; gap:.5rem; }
+        @media(max-width:700px) { .form-grid-2,.form-grid-3{grid-template-columns:1fr;} }
+    </style>
+</head>
+<body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+</div>
+<div class="page-content">
+
+<nav class="navbar">
+    <div class="nav-brand">🏢 <span th:text="${company.companyName}">Company</span></div>
+    <div class="nav-links">
+        <a th:href="@{/company/dashboard}">Dashboard</a>
+        <a th:href="@{/company/jobs}" class="active">My Jobs</a>
+        <a th:href="@{/company/applicants}">Applicants</a>
+        <a th:href="@{/company/profile}">Profile</a>
+        <a th:href="@{/company/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+    <!-- Post New Job -->
+    <div class="section-title" style="margin-bottom:.8rem;">➕ Post a New Job</div>
+    <div class="form-section">
+        <form th:action="@{/company/jobs/add}" method="post" id="addJobForm">
+            <h3>📋 Job Details</h3>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" name="title" placeholder="e.g. Software Engineer" required>
+                </div>
+                <div class="form-group">
+                    <label>Job Role</label>
+                    <input type="text" name="jobRole" placeholder="e.g. Backend Developer">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea name="description" rows="2" placeholder="Brief job description..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label>Salary (₹)</label>
+                    <input type="number" name="salary" placeholder="e.g. 700000" required>
+                </div>
+                <div class="form-group">
+                    <label>Min CGPA</label>
+                    <input type="number" name="minCgpa" step="0.1" min="0" max="10" placeholder="e.g. 7.0" required>
+                </div>
+                <div class="form-group">
+                    <label>Application Deadline</label>
+                    <input type="date" name="deadline" required>
+                </div>
+            </div>
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Required Skills (comma-separated)</label>
+                    <input type="text" name="requiredSkills" placeholder="Java,SQL,Spring Boot">
+                </div>
+                <div class="form-group">
+                    <label>Domain</label>
+                    <input type="text" name="domain" placeholder="e.g. Software Development">
+                </div>
+            </div>
+
+            <h3 style="margin-top:1rem;">🎯 Interview Rounds</h3>
+            <p style="font-size:.78rem;color:#94a3b8;margin-bottom:.8rem;">Define each round of your hiring process. These will be shown to students as a step tracker.</p>
+            <div id="roundsContainer">
+                <!-- Dynamic rows added by JS -->
+            </div>
+            <button type="button" class="add-round-btn" onclick="addRound()">+ Add Round</button>
+
+            <div style="margin-top:1.2rem;">
+                <button type="submit" class="btn btn-primary">🚀 Post Job with Rounds</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Existing Jobs -->
+    <div class="section-title" style="margin-bottom:.8rem;">💼 Your Posted Jobs</div>
+    <div th:if="${#lists.isEmpty(jobsWithMeta)}" class="alert alert-warning">
+        No jobs posted yet.
+    </div>
+    <div th:each="jm : ${jobsWithMeta}" class="job-card">
+        <div class="job-card-top">
+            <div>
+                <div class="job-card-title" th:text="${jm.job.title}">Title</div>
+                <div class="job-meta">
+                    <span th:text="${jm.job.formattedSalary}">Salary</span> &nbsp;·&nbsp;
+                    Min CGPA <span th:text="${jm.job.minCgpa}">0</span> &nbsp;·&nbsp;
+                    Deadline <span th:text="${jm.job.deadline}">—</span>
+                </div>
+                <div style="margin-top:.4rem;display:flex;gap:.5rem;align-items:center;">
+                    <span th:class="${jm.job.active} ? 'badge badge-selected' : 'badge badge-rejected'"
+                          th:text="${jm.job.active} ? 'Active' : 'Inactive'"></span>
+                    <span class="round-count" th:text="${jm.roundCount} + ' rounds'">0 rounds</span>
+                    <span style="font-size:.72rem;color:#94a3b8;" th:text="${jm.appCount} + ' applicants'">0 applicants</span>
+                </div>
+            </div>
+            <div class="job-card-actions">
+                <a th:href="@{'/company/applicants/' + ${jm.job.jobId}}" class="btn btn-sm btn-primary">👥 Applicants</a>
+                <form th:action="@{'/company/jobs/toggle/' + ${jm.job.jobId}}" method="post" style="margin:0;">
+                    <button type="submit" class="btn btn-sm"
+                            th:text="${jm.job.active} ? '⏸ Deactivate' : '▶ Activate'">Toggle</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Define rounds inline if job has no rounds yet -->
+        <div th:unless="${jm.hasRounds}" style="margin-top:.8rem;padding-top:.8rem;border-top:1px solid rgba(255,255,255,.06);">
+            <div style="font-size:.78rem;color:#fbbf24;margin-bottom:.5rem;">⚠️ No interview rounds defined yet. Add rounds below:</div>
+            <form th:action="@{'/company/jobs/' + ${jm.job.jobId} + '/rounds'}" method="post">
+                <div th:id="'rounds_' + ${jm.job.jobId}"></div>
+                <button type="button" class="add-round-btn"
+                        th:onclick="'addRoundTo(' + ${jm.job.jobId} + ')'">+ Add Round</button>
+                <button type="submit" class="btn btn-sm btn-primary" style="margin-left:.5rem;">Save Rounds</button>
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+
+<script>
+let roundCount = 0;
+const roundTypes = [
+    ['RESUME_SHORTLIST','📄 Resume Shortlist'],
+    ['APTITUDE','🧠 Aptitude Test'],
+    ['ONLINE_TEST','💻 Online Test'],
+    ['CODING','⌨️ Coding Round'],
+    ['TECHNICAL','🔧 Technical Interview'],
+    ['GROUP_DISCUSSION','👥 Group Discussion'],
+    ['HR','🤝 HR Interview']
+];
+
+function buildRoundTypeOptions(selected) {
+    return roundTypes.map(([val, label]) =>
+        `<option value="${val}" ${val === selected ? 'selected' : ''}>${label}</option>`
+    ).join('');
+}
+
+function addRound() {
+    roundCount++;
+    const container = document.getElementById('roundsContainer');
+    const row = document.createElement('div');
+    row.className = 'round-row';
+    row.id = 'mainRound_' + roundCount;
+    row.innerHTML = `
+        <input type="text" name="roundNames" placeholder="Round ${roundCount} name e.g. Aptitude Test" required>
+        <select name="roundTypes">${buildRoundTypeOptions('APTITUDE')}</select>
+        <button type="button" class="del-round" onclick="this.closest('.round-row').remove()">✕</button>
+    `;
+    container.appendChild(row);
+}
+
+function addRoundTo(jobId) {
+    const container = document.getElementById('rounds_' + jobId);
+    const count = container.querySelectorAll('.round-row').length + 1;
+    const row = document.createElement('div');
+    row.className = 'round-row';
+    row.innerHTML = `
+        <input type="text" name="roundNames" placeholder="Round ${count} name" required>
+        <select name="roundTypes">${buildRoundTypeOptions('APTITUDE')}</select>
+        <button type="button" class="del-round" onclick="this.closest('.round-row').remove()">✕</button>
+    `;
+    container.appendChild(row);
+}
+
+// Add one default round to main form
+addRound();
+</script>
+</body>
+</html>

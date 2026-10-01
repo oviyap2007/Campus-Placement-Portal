@@ -2,17 +2,173 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Dashboard</title>
+    <title>Admin Dashboard — PlaCamp</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* ── Enhanced Admin Dashboard ─────────────────────────── */
+        @keyframes pulse-badge {
+            0%,100% { opacity:1; transform:scale(1); }
+            50%      { opacity:.75; transform:scale(1.12); }
+        }
+        .dash-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .dash-header h2 { margin: 0; font-size: 1.5rem; }
+        .dash-header p  { margin: 0.2rem 0 0; color: #a78bfa; font-size: 0.9rem; }
+
+        /* Clickable card hover hint */
+        .sc-hover-hint {
+            font-size: 0.7rem; color: #a78bfa; margin-top: 0.5rem;
+            opacity: 0; transition: opacity .2s; font-weight: 700;
+        }
+        a.stat-card-e:hover .sc-hover-hint { opacity: 1; }
+        a.stat-card-e:hover { box-shadow: 0 8px 32px rgba(139,92,246,.4); border-color: rgba(167,139,250,.5); }
+
+        /* Stat cards with trend badge */
+        .stats-grid-4 {
+            display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-card-e {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(167,139,250,0.2);
+            border-radius: 1rem; padding: 1.2rem 1.4rem;
+            backdrop-filter: blur(12px);
+            transition: transform .2s, box-shadow .2s;
+            position: relative; overflow: hidden;
+        }
+        .stat-card-e:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(139,92,246,.3); }
+        .stat-card-e .sc-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1px; color: #94a3b8; margin-bottom: 0.6rem; }
+        .stat-card-e .sc-value { font-size: 2rem; font-weight: 800;
+            background: linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-card-e .sc-trend { font-size: 0.75rem; margin-top: 0.4rem; }
+        .trend-up   { color: #34d399; }
+        .trend-note { color: #94a3b8; }
+        .sc-icon-bg {
+            position: absolute; right: 1rem; top: 50%; transform: translateY(-50%);
+            font-size: 2.8rem; opacity: 0.15;
+        }
+
+        /* Quick Actions */
+        .quick-grid {
+            display: grid; grid-template-columns: repeat(5,1fr); gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .qcard {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(167,139,250,0.15);
+            border-radius: 0.9rem; padding: 1.1rem 0.8rem;
+            text-align: center; text-decoration: none;
+            transition: all .2s; cursor: pointer;
+        }
+        .qcard:hover { background: rgba(139,92,246,.2); border-color: #a78bfa; transform: translateY(-2px); }
+        .qcard .qi { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .qcard .ql { font-size: 0.8rem; font-weight: 700; color: #e2e8f0; }
+        .qcard .qs { font-size: 0.68rem; color: #94a3b8; margin-top: 0.2rem; }
+
+        /* Bottom 3-col grid */
+        .bottom-grid {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;
+        }
+        .widget-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(167,139,250,0.15);
+            border-radius: 1rem; padding: 1.2rem;
+            backdrop-filter: blur(10px);
+        }
+        .widget-title {
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem; color: #e2e8f0;
+        }
+        .widget-title span { font-size: 1rem; }
+
+        /* Deadline rows */
+        .deadline-row {
+            margin-bottom: 0.85rem; padding: 0.7rem 0.8rem;
+            background: rgba(255,255,255,0.04); border-radius: 0.6rem;
+            border-left: 3px solid #a78bfa;
+        }
+        .deadline-row.urgent  { border-left-color: #f87171; }
+        .deadline-row.soon    { border-left-color: #fbbf24; }
+        .deadline-row.normal  { border-left-color: #34d399; }
+        .dl-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem; }
+        .dl-title  { font-size: 0.82rem; font-weight: 700; color: #e2e8f0; }
+        .dl-badge  { font-size: 0.65rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 700; }
+        .badge-urgent { background: rgba(248,113,113,.2); color: #f87171; }
+        .badge-soon   { background: rgba(251,191,36,.15); color: #fbbf24; }
+        .badge-ok     { background: rgba(52,211,153,.15); color: #34d399; }
+        .dl-company { font-size: 0.72rem; color: #94a3b8; }
+        .dl-progress { height: 3px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 0.5rem; }
+        .dl-bar { height: 100%; border-radius: 2px; transition: width 1s; }
+
+        /* Recruiter rows */
+        .rec-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .rec-row:last-child { border-bottom: none; }
+        .rec-num { font-size: 0.72rem; color: #a78bfa; font-weight: 700; margin-right: 0.5rem; min-width: 1.2rem; }
+        .rec-name { font-size: 0.82rem; color: #e2e8f0; flex: 1; }
+        .rec-count { font-size: 0.78rem; font-weight: 700; color: #34d399; }
+
+        /* Needs attention rows */
+        .attn-row {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 0; border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .attn-row:last-child { border-bottom: none; }
+        .attn-info .attn-title   { font-size: 0.82rem; color: #e2e8f0; font-weight: 600; }
+        .attn-info .attn-company { font-size: 0.7rem; color: #94a3b8; }
+        .attn-salary { font-size: 0.75rem; color: #fbbf24; font-weight: 700; }
+        .zero-badge { font-size: 0.65rem; background: rgba(248,113,113,.2); color: #f87171; padding: 0.1rem 0.45rem; border-radius: 999px; }
+
+        .empty-note { font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 1rem 0; }
+
+        @media(max-width:900px) {
+            .stats-grid-4 { grid-template-columns: repeat(2,1fr); }
+            .quick-grid   { grid-template-columns: repeat(3,1fr); }
+            .bottom-grid  { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
 
+<!-- Aurora Background -->
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
+
+<div class="page-content">
+
+<!-- NAVBAR -->
 <nav class="navbar">
-    <div class="nav-brand">🛡 Admin Panel</div>
+    <div class="nav-brand">🛡 PlaCamp Admin</div>
     <div class="nav-links">
         <a th:href="@{/admin/dashboard}" class="active">Dashboard</a>
         <a th:href="@{/admin/students}">Students</a>
-        <a th:href="@{/admin/companies}">Companies</a>
+        <!-- Companies link with pending badge -->
+        <a th:href="@{/admin/companies}" style="position:relative;display:inline-flex;align-items:center;gap:4px;">
+            Companies
+            <span th:if="${pendingCompanies > 0}"
+                  style="background:#f87171;color:#fff;border-radius:999px;
+                         font-size:0.6rem;font-weight:800;padding:1px 6px;
+                         animation:pulse-badge 1.2s infinite;">
+                <span th:text="${pendingCompanies}">0</span> pending
+            </span>
+        </a>
         <a th:href="@{/admin/jobs}">Jobs</a>
         <a th:href="@{/admin/applications}">Applications</a>
         <a th:href="@{/admin/reports}">Reports</a>
@@ -21,52 +177,191 @@
 </nav>
 
 <div class="main-content">
-    <div class="welcome-banner">
+
+    <!-- ── Pending Company Approvals Alert (shown only when pending > 0) ── -->
+    <div th:if="${pendingCompanies > 0}"
+         style="background:rgba(251,191,36,0.1);border:1.5px solid rgba(251,191,36,0.4);
+                border-radius:1rem;padding:1rem 1.4rem;margin-bottom:1.2rem;
+                display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem;">
+        <div style="display:flex;align-items:center;gap:.8rem;">
+            <span style="font-size:1.6rem;">⏳</span>
+            <div>
+                <div style="font-size:.95rem;font-weight:800;color:#fbbf24;">
+                    Company Approval Pending —
+                    <span th:text="${pendingCompanies}">0</span>
+                    <span th:text="${pendingCompanies == 1} ? 'company is' : 'companies are'">companies are</span>
+                    waiting for your approval!
+                </div>
+                <div style="font-size:.78rem;color:#94a3b8;margin-top:.2rem;">
+                    Companies cannot login or post jobs until you approve them.
+                </div>
+            </div>
+        </div>
+        <a th:href="@{/admin/companies}"
+           style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#000;
+                  font-weight:800;font-size:.85rem;padding:.6rem 1.4rem;
+                  border-radius:.6rem;text-decoration:none;white-space:nowrap;">
+            ✅ Review &amp; Approve →
+        </a>
+    </div>
+
+    <!-- Header -->
+    <div class="dash-header">
         <div>
             <h2>Welcome, <span th:text="${admin.name}">Admin</span>! 🛡</h2>
-            <p>Campus Placement Portal — Admin Control Panel</p>
+            <p>PlaCamp — Admin Control Center &nbsp;|&nbsp; Overview</p>
         </div>
     </div>
 
-    <!-- Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-icon">🎓</div>
-            <div class="stat-value" th:text="${totalStudents}">0</div>
-            <div class="stat-label">Total Students</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">✅</div>
-            <div class="stat-value" th:text="${placedStudents}">0</div>
-            <div class="stat-label">Placed</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">🏢</div>
-            <div class="stat-value" th:text="${totalCompanies}">0</div>
-            <div class="stat-label">Companies</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">💼</div>
-            <div class="stat-value" th:text="${activeJobs}">0</div>
-            <div class="stat-label">Active Jobs</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon">📋</div>
-            <div class="stat-value" th:text="${totalApps}">0</div>
-            <div class="stat-label">Applications</div>
-        </div>
+    <!-- ── 4-Column Stats (all clickable) ────────────────────────────── -->
+    <div class="stats-grid-4">
+
+        <!-- Total Students → /admin/students -->
+        <a th:href="@{/admin/students}" class="stat-card-e" style="text-decoration:none;cursor:pointer;"
+           title="Click to view all students">
+            <div class="sc-label">Total Students</div>
+            <div class="sc-value" th:text="${totalStudents}">0</div>
+            <div class="sc-trend trend-note">Registered on portal</div>
+            <div class="sc-icon-bg">🎓</div>
+            <div class="sc-hover-hint">View All →</div>
+        </a>
+
+        <!-- Students Placed → /admin/students?filter=placed -->
+        <a th:href="@{/admin/students(filter='placed')}" class="stat-card-e" style="text-decoration:none;cursor:pointer;"
+           title="Click to view placed students">
+            <div class="sc-label">Students Placed</div>
+            <div class="sc-value" th:text="${placedStudents}">0</div>
+            <div class="sc-trend trend-up">✓ Selected by companies</div>
+            <div class="sc-icon-bg">✅</div>
+            <div class="sc-hover-hint">View Placed →</div>
+        </a>
+
+        <!-- Placement Rate → /admin/reports -->
+        <a th:href="@{/admin/reports}" class="stat-card-e" style="text-decoration:none;cursor:pointer;"
+           title="Click to view placement reports">
+            <div class="sc-label">Placement Rate</div>
+            <div class="sc-value"><span th:text="${placementRate}">0</span>%</div>
+            <div class="sc-trend trend-note">Overall portal rate</div>
+            <div class="sc-icon-bg">📈</div>
+            <div class="sc-hover-hint">View Reports →</div>
+        </a>
+
+        <!-- Active Jobs → /admin/jobs -->
+        <a th:href="@{/admin/jobs}" class="stat-card-e" style="text-decoration:none;cursor:pointer;"
+           title="Click to view all jobs">
+            <div class="sc-label">Active Jobs</div>
+            <div class="sc-value" th:text="${activeJobs}">0</div>
+            <div class="sc-trend trend-note"><span th:text="${totalCompanies}">0</span> partner companies</div>
+            <div class="sc-icon-bg">💼</div>
+            <div class="sc-hover-hint">View Jobs →</div>
+        </a>
+
     </div>
 
-    <!-- Quick Actions -->
-    <div class="section-title">Quick Actions</div>
-    <div class="quick-actions">
-        <a th:href="@{/admin/students}"     class="action-card"><div class="action-icon">🎓</div><div class="action-label">Manage Students</div></a>
-        <a th:href="@{/admin/companies}"    class="action-card"><div class="action-icon">🏢</div><div class="action-label">Manage Companies</div></a>
-        <a th:href="@{/admin/jobs}"         class="action-card"><div class="action-icon">💼</div><div class="action-label">Manage Jobs</div></a>
-        <a th:href="@{/admin/applications}" class="action-card"><div class="action-icon">📋</div><div class="action-label">Applications</div></a>
-        <a th:href="@{/admin/reports}"      class="action-card"><div class="action-icon">📊</div><div class="action-label">Reports</div></a>
+    <!-- ── Quick Actions ───────────────────────────────────────────────── -->
+    <div class="section-title" style="margin-bottom:0.8rem;">⚡ Quick Actions</div>
+    <div class="quick-grid" style="margin-bottom:1.5rem;">
+        <a th:href="@{/admin/students}" class="qcard">
+            <div class="qi">🎓</div>
+            <div class="ql">Add Student</div>
+            <div class="qs">Register new student</div>
+        </a>
+        <!-- Companies card — highlighted in amber when approvals pending -->
+        <a th:href="@{/admin/companies}" class="qcard"
+           th:style="${pendingCompanies > 0} ? 'border-color:rgba(251,191,36,.6);background:rgba(251,191,36,.08);' : ''">
+            <div class="qi">🏢</div>
+            <div class="ql" style="position:relative;display:inline-block;">
+                Companies
+                <span th:if="${pendingCompanies > 0}"
+                      style="position:absolute;top:-6px;right:-18px;
+                             background:#f87171;color:#fff;border-radius:999px;
+                             font-size:.55rem;font-weight:800;padding:1px 4px;">
+                    <span th:text="${pendingCompanies}">0</span>
+                </span>
+            </div>
+            <div class="qs" th:text="${pendingCompanies > 0} ? '⚠ ' + ${pendingCompanies} + ' approval(s) needed' : 'Manage companies'">
+                Manage companies
+            </div>
+        </a>
+        <a th:href="@{/admin/jobs}" class="qcard">
+            <div class="qi">💼</div>
+            <div class="ql">Post a Job</div>
+            <div class="qs">Add new opening</div>
+        </a>
+        <a th:href="@{/admin/applications}" class="qcard">
+            <div class="qi">📋</div>
+            <div class="ql">Applications</div>
+            <div class="qs">Shortlist &amp; select</div>
+        </a>
+        <a th:href="@{/admin/reports}" class="qcard">
+            <div class="qi">📊</div>
+            <div class="ql">View Reports</div>
+            <div class="qs">Placement analytics</div>
+        </a>
     </div>
-</div>
 
+    <!-- ── Bottom 3-Column Widgets ─────────────────────────────────────── -->
+    <div class="bottom-grid">
+
+        <!-- Upcoming Deadlines -->
+        <div class="widget-card">
+            <div class="widget-title"><span>🔴</span> Upcoming Deadlines
+                <small style="color:#94a3b8;font-weight:400;margin-left:auto;font-size:0.68rem;">Critical application windows</small>
+            </div>
+            <div th:if="${#lists.isEmpty(upcomingDeadlines)}" class="empty-note">No upcoming deadlines</div>
+            <div th:each="dl : ${upcomingDeadlines}">
+                <div class="deadline-row"
+                     th:classappend="${dl.urgent} ? 'urgent' : (${dl.soon} ? 'soon' : 'normal')">
+                    <div class="dl-top">
+                        <span class="dl-title" th:text="${dl.title}">Job Title</span>
+                        <span class="dl-badge"
+                              th:classappend="${dl.urgent} ? 'badge-urgent' : (${dl.soon} ? 'badge-soon' : 'badge-ok')"
+                              th:text="${dl.daysLeft} + 'd left'">3d left</span>
+                    </div>
+                    <div class="dl-company" th:text="${dl.company} + ' · ' + ${dl.appCount} + ' applied'">Company</div>
+                    <div class="dl-progress">
+                        <div class="dl-bar"
+                             th:style="${dl.urgent} ? 'width:90%;background:#f87171' : (${dl.soon} ? 'width:55%;background:#fbbf24' : 'width:25%;background:#34d399')">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Recruiters -->
+        <div class="widget-card">
+            <div class="widget-title"><span>🏆</span> Top Recruiters
+                <small style="color:#94a3b8;font-weight:400;margin-left:auto;font-size:0.68rem;">Most placements</small>
+            </div>
+            <div th:if="${#lists.isEmpty(topRecruiters)}" class="empty-note">No placements yet — select applicants first</div>
+            <div th:each="rec, iter : ${topRecruiters}" class="rec-row">
+                <span class="rec-num" th:text="${iter.index + 1}">1</span>
+                <span class="rec-name" th:text="${rec.name}">Company</span>
+                <span class="rec-count" th:text="${rec.placements} + ' placed'">0 placed</span>
+            </div>
+        </div>
+
+        <!-- Needs Attention -->
+        <div class="widget-card">
+            <div class="widget-title"><span>⚠️</span> Needs Attention
+                <small style="color:#94a3b8;font-weight:400;margin-left:auto;font-size:0.68rem;">Zero applicants</small>
+            </div>
+            <div th:if="${#lists.isEmpty(needsAttention)}" class="empty-note">All jobs have applications! 🎉</div>
+            <div th:each="attn : ${needsAttention}" class="attn-row">
+                <div class="attn-info">
+                    <div class="attn-title" th:text="${attn.title}">Job Title</div>
+                    <div class="attn-company" th:text="${attn.company}">Company</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.5rem;">
+                    <span class="attn-salary" th:text="${attn.salary}">Salary</span>
+                    <span class="zero-badge">0 apps</span>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /bottom-grid -->
+
+</div><!-- /main-content -->
+</div><!-- /page-content -->
 </body>
 </html>

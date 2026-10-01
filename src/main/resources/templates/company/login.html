@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>PlaCamp — Company Login</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .login-card {
+            background: rgba(255,255,255,0.06); border:1px solid rgba(167,139,250,0.25);
+            border-radius:1.5rem; padding:2.5rem 2rem; width:100%; max-width:420px;
+            backdrop-filter:blur(16px); box-shadow:0 20px 60px rgba(0,0,0,.4);
+        }
+        .login-logo { text-align:center; margin-bottom:1.5rem; }
+        .login-logo .brand { font-size:2rem; font-weight:900;
+            background:linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .login-logo .sub { font-size:0.8rem; color:#94a3b8; margin-top:.2rem; }
+        .form-group { margin-bottom:1.1rem; }
+        .form-group label { display:block; font-size:.8rem; color:#94a3b8; margin-bottom:.4rem; font-weight:600; text-transform:uppercase; letter-spacing:.5px; }
+        .form-group input { width:100%; background:rgba(255,255,255,.06); border:1px solid rgba(167,139,250,.2);
+            border-radius:.6rem; padding:.75rem 1rem; color:#e2e8f0; font-size:.9rem; outline:none; }
+        .form-group input:focus { border-color:#a78bfa; box-shadow:0 0 0 3px rgba(167,139,250,.15); }
+        .btn-primary { width:100%; background:linear-gradient(135deg,#7c3aed,#06b6d4); border:none;
+            border-radius:.7rem; padding:.85rem; color:#fff; font-size:1rem; font-weight:700; cursor:pointer;
+            transition:opacity .2s; margin-top:.5rem; }
+        .btn-primary:hover { opacity:.88; }
+        .login-links { text-align:center; margin-top:1.2rem; font-size:.82rem; color:#94a3b8; }
+        .login-links a { color:#a78bfa; text-decoration:none; font-weight:600; }
+        .login-links a:hover { text-decoration:underline; }
+        .alert-err { background:rgba(248,113,113,.1); border:1px solid rgba(248,113,113,.3);
+            color:#f87171; border-radius:.6rem; padding:.7rem 1rem; margin-bottom:1rem; font-size:.85rem; }
+        .alert-ok  { background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.3);
+            color:#34d399; border-radius:.6rem; padding:.7rem 1rem; margin-bottom:1rem; font-size:.85rem; }
+        .company-badge { display:inline-flex; align-items:center; gap:.4rem;
+            background:rgba(251,191,36,.1); border:1px solid rgba(251,191,36,.3);
+            color:#fbbf24; border-radius:999px; padding:.25rem .8rem; font-size:.72rem; font-weight:700;
+            margin-bottom:1rem; }
+    </style>
+</head>
+<body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+</div>
+<div class="page-content">
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-logo">
+            <div class="brand">🏢 PlaCamp</div>
+            <div class="sub">Company Portal</div>
+        </div>
+        <div style="text-align:center;margin-bottom:1rem;">
+            <span class="company-badge">🔐 Company Login</span>
+        </div>
+
+        <div th:if="${error}" class="alert-err" th:text="${error}"></div>
+        <div th:if="${success}" class="alert-ok" th:text="${success}"></div>
+
+        <form th:action="@{/company/login}" method="post">
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" name="username" placeholder="Your company username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn-primary">Login to Company Portal</button>
+        </form>
+
+        <div class="login-links">
+            <p>New company? <a th:href="@{/company/register}">Register for access →</a></p>
+            <p style="margin-top:.5rem;">Student / Admin? <a th:href="@{/login}">Login here →</a></p>
+        </div>
+    </div>
+</div>
+</div>
+</body>
+</html>

@@ -1,8 +1,27 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><title>Manage Applications</title>
+<head><meta charset="UTF-8"><title>All Applications</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"></head>
 <body>
+<!-- PlaCamp Aurora Background -->
+<div class="page-bg">
+    <div class="aurora a1"></div>
+    <div class="aurora a2"></div>
+    <div class="aurora a3"></div>
+    <div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#a78bfa;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:5px;height:5px;background:#f9a8d4;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#fbbf24;top:80%;left:55%;animation-delay:-2.4s"></span>
+        <span style="width:4px;height:4px;background:#34d399;top:10%;left:50%;animation-delay:-3.2s"></span>
+        <span style="width:3px;height:3px;background:#f472b6;top:55%;right:25%;animation-delay:-.5s"></span>
+        <span style="width:4px;height:4px;background:#818cf8;top:30%;right:15%;animation-delay:-1.2s"></span>
+        <span style="width:3px;height:3px;background:#2dd4bf;top:75%;right:40%;animation-delay:-2s"></span>
+    </div>
+</div>
+<div class="page-content">
 <nav class="navbar">
     <div class="nav-brand">🛡 Admin Panel</div>
     <div class="nav-links">
@@ -16,7 +35,10 @@
     </div>
 </nav>
 <div class="main-content">
-    <div class="page-header"><h2>📋 Application Management</h2></div>
+    <div class="page-header"><h2>📋 Application Monitoring</h2></div>
+    <p style="color:#a78bfa;margin-bottom:1rem;font-size:0.9rem;">
+        ℹ️ Applications are managed by their respective companies. Admin can monitor status here.
+    </p>
     <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
     <div th:if="${error}"   class="alert alert-error"   th:text="${error}"></div>
 
@@ -25,7 +47,7 @@
     <div th:if="${!#lists.isEmpty(apps)}" class="card">
         <table class="data-table">
             <thead>
-                <tr><th>ID</th><th>Student</th><th>Job</th><th>Company</th><th>Applied On</th><th>Status</th><th>Actions</th></tr>
+                <tr><th>ID</th><th>Student</th><th>Job</th><th>Company</th><th>Applied On</th><th>Status</th></tr>
             </thead>
             <tbody>
                 <tr th:each="app : ${apps}">
@@ -37,24 +59,11 @@
                     <td>
                         <span class="badge" th:classappend="${app.statusBadgeClass}" th:text="${app.status}"></span>
                     </td>
-                    <td class="action-btns">
-                        <form th:action="@{/admin/applications/shortlist/{id}(id=${app.applicationId})}" method="post" style="display:inline">
-                            <button type="submit" class="btn btn-warning btn-sm"
-                                    th:disabled="${app.status.name() != 'APPLIED'}">Shortlist</button>
-                        </form>
-                        <form th:action="@{/admin/applications/select/{id}(id=${app.applicationId})}" method="post" style="display:inline">
-                            <button type="submit" class="btn btn-success btn-sm"
-                                    th:disabled="${app.status.name() == 'SELECTED' or app.status.name() == 'REJECTED'}">Select</button>
-                        </form>
-                        <form th:action="@{/admin/applications/reject/{id}(id=${app.applicationId})}" method="post" style="display:inline">
-                            <button type="submit" class="btn btn-danger btn-sm"
-                                    th:disabled="${app.status.name() == 'SELECTED' or app.status.name() == 'REJECTED'}">Reject</button>
-                        </form>
-                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
+</div>
 </div>
 </body>
 </html>

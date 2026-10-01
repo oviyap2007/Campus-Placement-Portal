@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Company Dashboard — PlaCamp</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        .stats-grid-4 { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem; }
+        .stat-card-e { background:rgba(255,255,255,.06); border:1px solid rgba(167,139,250,.2);
+            border-radius:1rem; padding:1.2rem 1.4rem; backdrop-filter:blur(12px);
+            transition:transform .2s,box-shadow .2s; position:relative; overflow:hidden; }
+        .stat-card-e:hover { transform:translateY(-3px); box-shadow:0 8px 32px rgba(139,92,246,.3); }
+        .sc-label { font-size:.72rem; text-transform:uppercase; letter-spacing:1px; color:#94a3b8; margin-bottom:.5rem; }
+        .sc-value { font-size:2rem; font-weight:800;
+            background:linear-gradient(135deg,#a78bfa,#67e8f9); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .sc-icon-bg { position:absolute; right:1rem; top:50%; transform:translateY(-50%); font-size:2.8rem; opacity:.12; }
+
+        .quick-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:.8rem; margin-bottom:1.5rem; }
+        .qcard { background:rgba(255,255,255,.05); border:1px solid rgba(167,139,250,.15);
+            border-radius:.9rem; padding:1.1rem .8rem; text-align:center; text-decoration:none;
+            transition:all .2s; }
+        .qcard:hover { background:rgba(139,92,246,.2); border-color:#a78bfa; transform:translateY(-2px); }
+        .qi { font-size:1.8rem; margin-bottom:.5rem; }
+        .ql { font-size:.8rem; font-weight:700; color:#e2e8f0; }
+        .qs { font-size:.68rem; color:#94a3b8; margin-top:.2rem; }
+
+        .jobs-table-wrap { overflow-x:auto; }
+        @media(max-width:900px) { .stats-grid-4{grid-template-columns:repeat(2,1fr);} .quick-grid{grid-template-columns:repeat(2,1fr);} }
+    </style>
+</head>
+<body>
+<div class="page-bg">
+    <div class="aurora a1"></div><div class="aurora a2"></div>
+    <div class="aurora a3"></div><div class="aurora a4"></div>
+    <div class="grid"></div>
+    <div class="particles">
+        <span style="width:4px;height:4px;background:#fbbf24;top:20%;left:30%;animation-delay:0s"></span>
+        <span style="width:3px;height:3px;background:#67e8f9;top:40%;left:70%;animation-delay:-.8s"></span>
+        <span style="width:4px;height:4px;background:#a78bfa;top:65%;left:25%;animation-delay:-1.6s"></span>
+        <span style="width:3px;height:3px;background:#34d399;top:80%;left:55%;animation-delay:-2.4s"></span>
+    </div>
+</div>
+<div class="page-content">
+
+<nav class="navbar">
+    <div class="nav-brand">🏢 <span th:text="${company.companyName}">Company</span></div>
+    <div class="nav-links">
+        <a th:href="@{/company/dashboard}" class="active">Dashboard</a>
+        <a th:href="@{/company/jobs}">My Jobs</a>
+        <a th:href="@{/company/applicants}">Applicants</a>
+        <a th:href="@{/company/profile}">Profile</a>
+        <a th:href="@{/company/logout}" class="btn-logout">Logout</a>
+    </div>
+</nav>
+
+<div class="main-content">
+
+    <div class="welcome-banner" style="margin-bottom:1.2rem;">
+        <h2>Welcome, <span th:text="${company.companyName}">Company</span>! 🏢</h2>
+        <p><b th:text="${company.industry}">Industry</b> &nbsp;|&nbsp; <b th:text="${company.location}">Location</b> &nbsp;|&nbsp; PlaCamp Company Portal</p>
+    </div>
+
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}"   class="alert alert-danger"  th:text="${error}"></div>
+
+    <!-- Stats -->
+    <div class="stats-grid-4">
+        <div class="stat-card-e">
+            <div class="sc-label">Total Applicants</div>
+            <div class="sc-value" th:text="${totalApplicants}">0</div>
+            <div class="sc-icon-bg">📋</div>
+        </div>
+        <div class="stat-card-e">
+            <div class="sc-label">Students Placed</div>
+            <div class="sc-value" th:text="${totalPlaced}">0</div>
+            <div class="sc-icon-bg">✅</div>
+        </div>
+        <div class="stat-card-e">
+            <div class="sc-label">Active Jobs</div>
+            <div class="sc-value" th:text="${activeJobs}">0</div>
+            <div class="sc-icon-bg">💼</div>
+        </div>
+        <div class="stat-card-e">
+            <div class="sc-label">Total Jobs Posted</div>
+            <div class="sc-value" th:text="${jobCount}">0</div>
+            <div class="sc-icon-bg">📝</div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="section-title" style="margin-bottom:.8rem;">⚡ Quick Actions</div>
+    <div class="quick-grid">
+        <a th:href="@{/company/jobs}" class="qcard">
+            <div class="qi">💼</div>
+            <div class="ql">Post a Job</div>
+            <div class="qs">Add new opening + rounds</div>
+        </a>
+        <a th:href="@{/company/applicants}" class="qcard">
+            <div class="qi">👥</div>
+            <div class="ql">View Applicants</div>
+            <div class="qs">Manage candidates</div>
+        </a>
+        <a th:href="@{/company/jobs}" class="qcard">
+            <div class="qi">🔄</div>
+            <div class="ql">Manage Jobs</div>
+            <div class="qs">Toggle active/inactive</div>
+        </a>
+        <a th:href="@{/company/profile}" class="qcard">
+            <div class="qi">🏢</div>
+            <div class="ql">Company Profile</div>
+            <div class="qs">View company info</div>
+        </a>
+    </div>
+
+    <!-- My Jobs preview -->
+    <div class="section-title" style="margin-bottom:.8rem;">💼 Your Posted Jobs</div>
+    <div th:if="${#lists.isEmpty(myJobs)}" class="alert alert-warning">
+        No jobs posted yet. <a th:href="@{/company/jobs}" style="color:#fcd34d;font-weight:700;">Post your first job →</a>
+    </div>
+    <div class="jobs-table-wrap" th:unless="${#lists.isEmpty(myJobs)}">
+        <table class="data-table">
+            <thead><tr><th>Job Title</th><th>Salary</th><th>Min CGPA</th><th>Deadline</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>
+                <tr th:each="job : ${myJobs}">
+                    <td th:text="${job.title}">Title</td>
+                    <td th:text="${job.formattedSalary}">Salary</td>
+                    <td th:text="${job.minCgpa}">CGPA</td>
+                    <td th:text="${job.deadline}">Deadline</td>
+                    <td><span th:class="${job.active} ? 'badge badge-selected' : 'badge badge-rejected'"
+                              th:text="${job.active} ? 'Active' : 'Inactive'">Status</span></td>
+                    <td>
+                        <a th:href="@{'/company/applicants/' + ${job.jobId}}" class="btn btn-sm btn-primary">View Applicants</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+</body>
+</html>

@@ -19,6 +19,15 @@ INSERT IGNORE INTO company (name, industry, location, contact_email, contact_pho
 ('HCL Technologies', 'Software',          'Noida',     'hr@hcl.com',       '0120-9988776'),
 ('Zoho Corp',        'Software Products', 'Chennai',   'hr@zoho.com',      '044-22334455');
 
+-- Company Accounts (for company-side login)
+-- TCS and Infosys are approved; Wipro is pending
+-- Using ON DUPLICATE KEY UPDATE so is_approved is always set correctly
+INSERT INTO company_account (company_id, username, password, is_approved) VALUES
+(1, 'tcs_hr',      'tcs123',     TRUE),
+(2, 'infosys_hr',  'infosys123', TRUE),
+(3, 'wipro_hr',    'wipro123',   FALSE)
+ON DUPLICATE KEY UPDATE is_approved = VALUES(is_approved);
+
 -- Jobs
 INSERT IGNORE INTO job (company_id, title, description, salary, min_cgpa, deadline, is_active, required_skills, domain, job_role) VALUES
 (1, 'Java Backend Developer',    'Build scalable backend APIs',         700000,  7.0, '2026-12-31', TRUE, 'Java,SQL,Spring Boot,REST API', 'Software Development', 'Backend Developer'),
@@ -40,3 +49,18 @@ INSERT IGNORE INTO student (name, email, phone, department, cgpa, pass_year, use
 ('Karthik M',     'karthik@student.edu', '9876543215', 'IT',  9.0, 2025, 'karthik', 'karthik123', FALSE, 'Java,Spring Boot,React,SQL,Git,REST API', 'Full Stack Developer'),
 ('Deepa N',       'deepa@student.edu',   '9876543216', 'CSE', 7.8, 2025, 'deepa',   'deepa123',   FALSE, 'Python,SQL,Excel,Tableau',        'Data Analyst'),
 ('Vijay R',       'vijay@student.edu',   '9876543217', 'CSE', 6.2, 2025, 'vijay',   'vijay123',   FALSE, 'Java,DSA,Git',                    'Software Engineer');
+
+-- Interview Rounds for TCS Java Backend Developer (job_id=1)
+INSERT IGNORE INTO interview_round (job_id, round_number, round_name, round_type) VALUES
+(1, 1, 'Resume Shortlisting', 'RESUME_SHORTLIST'),
+(1, 2, 'Aptitude Test',       'APTITUDE'),
+(1, 3, 'Coding Round',        'CODING'),
+(1, 4, 'Technical Interview', 'TECHNICAL'),
+(1, 5, 'HR Interview',        'HR');
+
+-- Interview Rounds for Infosys Software Engineer (job_id=3)
+INSERT IGNORE INTO interview_round (job_id, round_number, round_name, round_type) VALUES
+(3, 1, 'Resume Shortlisting', 'RESUME_SHORTLIST'),
+(3, 2, 'Online Test',         'ONLINE_TEST'),
+(3, 3, 'Technical Interview', 'TECHNICAL'),
+(3, 4, 'HR Interview',        'HR');
