@@ -32,6 +32,7 @@ public class InterviewRoundService {
     @Transactional
     public void replaceRounds(int jobId, List<InterviewRound> rounds) {
         roundRepo.deleteByJobId(jobId);
+        roundRepo.flush();
         for (int i = 0; i < rounds.size(); i++) {
             InterviewRound r = rounds.get(i);
             r.setJobId(jobId);

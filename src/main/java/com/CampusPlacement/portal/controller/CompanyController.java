@@ -216,15 +216,25 @@ public class CompanyController {
             Job saved = jobService.save(job);
 
             // Save rounds
-            for (int i = 0; i < roundNames.size(); i++) {
-                String rName = roundNames.get(i).trim();
-                if (rName.isEmpty()) continue;
-                RoundType rt = RoundType.valueOf(roundTypeValues.get(i));
-                InterviewRound round = new InterviewRound(saved.getJobId(), i + 1, rName, rt);
-                roundService.save(round);
+            if (roundNames != null && roundTypeValues != null) {
+                int rCount = 0;
+                for (int i = 0; i < roundNames.size(); i++) {
+                    String rName = roundNames.get(i).trim();
+                    if (rName.isEmpty()) continue;
+                    String rTypeStr = (i < roundTypeValues.size()) ? roundTypeValues.get(i) : "APTITUDE";
+                    RoundType rt;
+                    try {
+                        rt = RoundType.valueOf(rTypeStr);
+                    } catch (Exception ex) {
+                        rt = RoundType.APTITUDE;
+                    }
+                    rCount++;
+                    InterviewRound round = new InterviewRound(saved.getJobId(), rCount, rName, rt);
+                    roundService.save(round);
+                }
             }
 
-            ra.addFlashAttribute("success", "Job posted with " + roundNames.size() + " interview rounds!");
+            ra.addFlashAttribute("success", "Job posted successfully!");
         } catch (Exception e) {
             ra.addFlashAttribute("error", "Error posting job: " + e.getMessage());
         }
@@ -242,18 +252,37 @@ public class CompanyController {
     // ── Add / Replace Rounds for existing job ────────────────────────────────
     @PostMapping("/jobs/{jobId}/rounds")
     public String saveRounds(@PathVariable int jobId,
-                             @RequestParam List<String> roundNames,
-                             @RequestParam List<String> roundTypeValues,
+                             @RequestParam(value = "roundNames", required = false) List<String> roundNames,
+                             @RequestParam(value = "roundTypes", required = false) List<String> roundTypes,
                              HttpSession session, RedirectAttributes ra) {
         String r = checkLogin(session); if (r != null) return r;
-        List<InterviewRound> rounds = new ArrayList<>();
-        for (int i = 0; i < roundNames.size(); i++) {
-            String rName = roundNames.get(i).trim();
-            if (rName.isEmpty()) continue;
-            rounds.add(new InterviewRound(jobId, i + 1, rName, RoundType.valueOf(roundTypeValues.get(i))));
+        try {
+            if (roundNames == null || roundTypes == null || roundNames.isEmpty()) {
+                ra.addFlashAttribute("error", "Please add at least one round before saving.");
+                return "redirect:/company/applicants/" + jobId;
+            }
+            List<InterviewRound> rounds = new ArrayList<>();
+            for (int i = 0; i < roundNames.size(); i++) {
+                String rName = roundNames.get(i).trim();
+                if (rName.isEmpty()) continue;
+                String rTypeStr = (i < roundTypes.size()) ? roundTypes.get(i) : "APTITUDE";
+                RoundType rt;
+                try {
+                    rt = RoundType.valueOf(rTypeStr);
+                } catch (Exception ex) {
+                    rt = RoundType.APTITUDE;
+                }
+                rounds.add(new InterviewRound(jobId, rounds.size() + 1, rName, rt));
+            }
+            if (rounds.isEmpty()) {
+                ra.addFlashAttribute("error", "Round names cannot be empty.");
+                return "redirect:/company/applicants/" + jobId;
+            }
+            roundService.replaceRounds(jobId, rounds);
+            ra.addFlashAttribute("success", "Interview rounds updated successfully!");
+        } catch (Exception e) {
+            ra.addFlashAttribute("error", "Failed to save rounds: " + e.getMessage());
         }
-        roundService.replaceRounds(jobId, rounds);
-        ra.addFlashAttribute("success", "Interview rounds updated!");
         return "redirect:/company/applicants/" + jobId;
     }
 
