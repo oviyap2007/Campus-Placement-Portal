@@ -22,7 +22,7 @@ public class CompanyAccount {
     private String password;
 
     @Column(name = "is_approved")
-    private boolean isApproved = false;
+    private boolean approved = false;
 
     @Column(name = "registered_at")
     private LocalDateTime registeredAt = LocalDateTime.now();
@@ -39,7 +39,7 @@ public class CompanyAccount {
         this.companyId     = companyId;
         this.username      = username;
         this.password      = password;
-        this.isApproved    = false;
+        this.approved      = false;
         this.registeredAt  = LocalDateTime.now();
     }
 
@@ -48,7 +48,7 @@ public class CompanyAccount {
     public int getCompanyId()          { return companyId; }
     public String getUsername()        { return username; }
     public String getPassword()        { return password; }
-    public boolean isApproved()        { return isApproved; }
+    public boolean isApproved()        { return approved; }
     public LocalDateTime getRegisteredAt() { return registeredAt; }
     public String getCompanyName()     { return companyName; }
     public String getIndustry()        { return industry; }
@@ -60,7 +60,7 @@ public class CompanyAccount {
     public void setCompanyId(int companyId)            { this.companyId = companyId; }
     public void setUsername(String username)           { this.username = username; }
     public void setPassword(String password)           { this.password = password; }
-    public void setApproved(boolean approved)          { this.isApproved = approved; }
+    public void setApproved(boolean approved)          { this.approved = approved; }
     public void setRegisteredAt(LocalDateTime dt)      { this.registeredAt = dt; }
     public void setCompanyName(String companyName)     { this.companyName = companyName; }
     public void setIndustry(String industry)           { this.industry = industry; }

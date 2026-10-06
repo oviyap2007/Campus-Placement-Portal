@@ -10,7 +10,7 @@ import java.util.Optional;
 public interface CompanyAccountRepository extends JpaRepository<CompanyAccount, Integer> {
     Optional<CompanyAccount> findByUsername(String username);
     Optional<CompanyAccount> findByCompanyId(int companyId);
-    List<CompanyAccount> findByIsApprovedFalse();
-    List<CompanyAccount> findByIsApprovedTrue();
+    List<CompanyAccount> findByApprovedFalse();
+    List<CompanyAccount> findByApprovedTrue();
     boolean existsByUsername(String username);
 }

@@ -29,7 +29,7 @@ public class StudentService {
     }
 
     public long countPlaced() {
-        return studentRepo.findByIsPlaced(true).size();
+        return studentRepo.findByPlaced(true).size();
     }
 
     public long countTotal() { return studentRepo.count(); }

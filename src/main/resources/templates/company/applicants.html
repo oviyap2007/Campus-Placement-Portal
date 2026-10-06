@@ -145,10 +145,10 @@
         </div>
 
         <!-- Step Tracker -->
-        <div th:unless="${#lists.isEmpty(item.roundResults)}" style="margin-top:.8rem;">
+        <div th:unless="${#lists.isEmpty(item.progress)}" style="margin-top:.8rem;">
             <div style="font-size:.75rem;color:#94a3b8;margin-bottom:.4rem;font-weight:600;">INTERVIEW PROGRESS</div>
             <div class="step-tracker">
-                <div th:each="rr, iter : ${item.roundResults}" style="display:flex;align-items:center;">
+                <div th:each="rr, iter : ${item.progress}" style="display:flex;align-items:center;">
                     <div class="step-item">
                         <div class="step-circle"
                              th:classappend="${rr.status.name() == 'PASSED'} ? ' step-passed' :
@@ -173,7 +173,7 @@
         </div>
 
         <!-- Failed round remarks -->
-        <div th:each="rr : ${item.roundResults}"
+        <div th:each="rr : ${item.progress}"
              th:if="${rr.status.name() == 'FAILED' and rr.remarks != null and !rr.remarks.isEmpty()}">
             <div class="remarks-note">
                 ❌ Failed at <span th:text="${rr.roundName}">Round</span>:

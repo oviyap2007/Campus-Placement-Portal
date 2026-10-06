@@ -36,7 +36,7 @@ public class Student {
     private String password;
 
     @Column(name = "is_placed")
-    private boolean isPlaced = false;
+    private boolean placed = false;
 
     @Column(name = "skills")
     private String skills = "";
@@ -65,7 +65,7 @@ public class Student {
         this.passYear      = passYear;
         this.username      = username;
         this.password      = password;
-        this.isPlaced      = false;
+        this.placed        = false;
         this.skills        = skills != null ? skills : "";
         this.preferredRole = preferredRole != null ? preferredRole : "";
         this.profilePhoto  = "";
@@ -82,7 +82,7 @@ public class Student {
     public int    getPassYear()      { return passYear; }
     public String getUsername()      { return username; }
     public String getPassword()      { return password; }
-    public boolean isPlaced()        { return isPlaced; }
+    public boolean isPlaced()        { return placed; }
     public String getSkills()        { return skills; }
     public String getPreferredRole() { return preferredRole; }
     public String getProfilePhoto()  { return profilePhoto; }
@@ -98,7 +98,7 @@ public class Student {
     public void setPassYear(int passYear)      { this.passYear = passYear; }
     public void setUsername(String username)   { this.username = username; }
     public void setPassword(String password)   { this.password = password; }
-    public void setPlaced(boolean placed)      { this.isPlaced = placed; }
+    public void setPlaced(boolean placed)      { this.placed = placed; }
     public void setSkills(String skills)       { this.skills = skills; }
     public void setPreferredRole(String role)  { this.preferredRole = role; }
     public void setProfilePhoto(String photo)  { this.profilePhoto = photo; }

@@ -70,14 +70,14 @@ public class CompanyAccountService {
 
     /** All pending accounts (for admin) */
     public List<CompanyAccount> getPendingAccounts() {
-        List<CompanyAccount> list = accountRepo.findByIsApprovedFalse();
+        List<CompanyAccount> list = accountRepo.findByApprovedFalse();
         enrichAll(list);
         return list;
     }
 
     /** All approved accounts */
     public List<CompanyAccount> getApprovedAccounts() {
-        List<CompanyAccount> list = accountRepo.findByIsApprovedTrue();
+        List<CompanyAccount> list = accountRepo.findByApprovedTrue();
         enrichAll(list);
         return list;
     }
